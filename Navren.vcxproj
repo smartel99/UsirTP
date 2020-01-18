@@ -1,0 +1,850 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{5313730C-7682-4FF8-9037-916B20ED6C61}</ProjectGuid>
+    <RootNamespace>Navren</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>UsirTP</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\vendor\imgui;$(ProjectDir)src\vendor;$(ProjectDir)src;$(ProjectDir)Dependencies\GLEW\include;$(ProjectDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\GLEW\lib\Release\x64;$(ProjectDir)Dependencies\GLFW\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MinSpace</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\vendor\imgui;$(ProjectDir)src\vendor;$(ProjectDir)src;$(ProjectDir)Dependencies\GLEW\include;$(ProjectDir)Dependencies\GLFW\include;$(ProjectDir)Dependencies\mongoC\include;$(ProjectDir)Dependencies\mongoC\include\bsoncxx\v_noabi;$(ProjectDir)Dependencies\mongoC\include\mongocxx\v_noabi;$(ProjectDir)Dependencies\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\GLEW\lib\Release\x64;$(ProjectDir)Dependencies\GLFW\lib-vc2019;$(ProjectDir)Dependencies\mongoC\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>shlwapi.lib;propsys.lib;glfw3.lib;glew32.lib;opengl32.lib;bsoncxx.lib;bson-static-1.0.lib;mongoc-static-1.0.lib;mongocxx.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\utils\db\Category.cpp" />
+    <ClCompile Include="src\utils\db\Item.cpp" />
+    <ClCompile Include="src\glErrors.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\utils\CDialogEventHandler.cpp" />
+    <ClCompile Include="src\utils\Config.cpp" />
+    <ClCompile Include="src\utils\db\MongoCore.cpp" />
+    <ClCompile Include="src\utils\Document.cpp" />
+    <ClCompile Include="src\utils\Fonts.cpp" />
+    <ClCompile Include="src\utils\StringUtils.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\widgets\Logger.cpp" />
+    <ClCompile Include="src\widgets\MainMenu.cpp" />
+    <ClCompile Include="src\widgets\Options.cpp" />
+    <ClCompile Include="src\widgets\Popup.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\utils\db\Category.h" />
+    <ClInclude Include="Dependencies\boost\boost\align.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\aligned_storage.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\any.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\array.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\asio.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\assert.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\assign.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\atomic.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\beast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\bimap.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\bind.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\blank.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\blank_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\callable_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\call_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cerrno.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\checked_delete.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\chrono.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\circular_buffer.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\circular_buffer_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\compressed_pair.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\compute.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\concept_archetype.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\concept_check.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\abi\borland_prefix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\abi\borland_suffix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\abi\msvc_prefix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\abi\msvc_suffix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\abi_prefix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\abi_suffix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\auto_link.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\borland.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\clang.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\codegear.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\comeau.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\common_edg.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\compaq_cxx.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\cray.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\diab.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\digitalmars.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\gcc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\gcc_xml.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\greenhills.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\hp_acc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\intel.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\kai.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\metrowerks.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\mpw.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\nvcc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\pathscale.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\pgi.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\sgi_mipspro.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\sunpro_cc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\vacpp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\visualc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\xlcpp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\compiler\xlcpp_zos.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\detail\posix_features.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\detail\select_compiler_config.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\detail\select_platform_config.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\detail\select_stdlib_config.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\detail\suffix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\header_deprecated.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\helper_macros.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\no_tr1\cmath.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\no_tr1\complex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\no_tr1\functional.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\no_tr1\memory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\no_tr1\utility.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\aix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\amigaos.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\beos.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\bsd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\cloudabi.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\cray.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\cygwin.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\haiku.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\hpux.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\irix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\linux.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\macos.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\qnxnto.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\solaris.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\symbian.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\vms.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\vxworks.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\win32.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\platform\zos.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\pragma_message.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\requires_threads.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\dinkumware.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\libcomo.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\libcpp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\libstdcpp3.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\modena.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\msl.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\roguewave.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\sgi.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\stlport.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\vacpp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\stdlib\xlcpp_zos.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\user.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\warning_disable.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\config\workaround.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\contract.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\contract_macro.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\convert.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\addressof.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\alloc_construct.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\checked_delete.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\default_allocator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\demangle.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\empty_value.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\enable_if.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\exchange.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\explicit_operator_bool.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\first_scalar.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\ignore_unused.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\is_same.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\lightweight_test.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\lightweight_test_trait.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\noinit_adaptor.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\noncopyable.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\no_exceptions_support.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\null_deleter.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\nvp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\pointer_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\quick_exit.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\ref.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\scoped_enum.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\swap.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\typeinfo.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\uncaught_exceptions.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\underlying_type.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\core\use_default.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\crc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cregex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cstdfloat.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cstdint.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cstdlib.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\current_function.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\cxx11_char_types.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\date_time.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\algorithm.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\allocator_utilities.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\atomic_count.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\basic_pointerbuf.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\binary_search.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\bitmask.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\call_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\catch_exceptions.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\compressed_pair.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\container_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\endian.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\fenv.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\has_default_constructor.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\identifier.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\indirect_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\interlocked.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\is_incrementable.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\is_sorted.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\is_xxx.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\lcast_precision.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\lightweight_main.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\lightweight_mutex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\lightweight_test.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\lightweight_test_report.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\lightweight_thread.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\named_template_params.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\no_exceptions_support.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\numeric_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\ob_compressed_pair.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\quick_allocator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\reference_content.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\scoped_enum_emulation.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\select_type.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\sp_typeinfo.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\templated_streams.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\utf8_codecvt_facet.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\utf8_codecvt_facet.ipp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\access_rights.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\apc.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\basic_types.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\bcrypt.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\character_code_conversion.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\condition_variable.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\config.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\critical_section.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\crypt.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\dbghelp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\debugapi.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\detail\deprecated_namespace.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\directory_management.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\dll.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\environment.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\error_codes.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\error_handling.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\event.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\file_management.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\file_mapping.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_current_process.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_current_process_id.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_current_thread.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_current_thread_id.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_last_error.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_process_times.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_system_directory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\get_thread_times.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\handles.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\handle_info.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\heap_memory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\init_once.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\jobs.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\limits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\local_memory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\memory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\mutex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\overlapped.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\page_protection_flags.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\pipes.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\priority_class.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\process.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\security.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\semaphore.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\shell.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\show_window.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\srw_lock.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\stack_backtrace.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\synchronization.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\system.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\thread.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\thread_pool.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\time.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\timers.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\tls.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\wait.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\winapi\waitable_timer.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\detail\workaround.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\dll.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\dynamic_bitset.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\dynamic_bitset_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\enable_shared_from_this.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\endian.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\exception_ptr.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\filesystem.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\flyweight.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\foreach.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\foreach_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\format.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\function.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\functional.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\function_equal.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\function_output_iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\generator_iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\geometry.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\get_pointer.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\gil.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\hana.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\histogram.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\hof.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\implicit_cast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\indirect_reference.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\integer.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\integer_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\integer_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\intrusive_ptr.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\io_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\is_placeholder.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\iterator_adaptors.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\lexical_cast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\limits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\locale.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\local_function.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\make_default.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\make_shared.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\make_unique.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\math_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\memory_order.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\mem_fn.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\metaparse.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\mp11.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\mpi.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\multi_array.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\multi_index_container.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\multi_index_container_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\next_prior.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\noncopyable.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\nondet_random.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\none.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\none_t.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\non_type.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\operators.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\operators_v1.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\optional.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\outcome.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\parameter.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\phoenix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\pointee.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\pointer_cast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\pointer_to_other.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\polymorphic_cast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\polymorphic_pointer_cast.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\predef.h" />
+    <ClInclude Include="Dependencies\boost\boost\preprocessor.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\process.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\program_options.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\progress.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\python.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\random.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\range.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\ratio.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\rational.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\ref.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\regex.h" />
+    <ClInclude Include="Dependencies\boost\boost\regex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\regex_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\scoped_array.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\scoped_ptr.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\scope_exit.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\shared_array.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\shared_container_iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\shared_ptr.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\signals2.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\smart_ptr.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\spirit.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\stacktrace.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\static_assert.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\swap.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\thread.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\throw_exception.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\timer.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\tokenizer.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\token_functions.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\token_iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\type.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\type_index.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\type_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\unordered_map.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\unordered_set.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\addressof.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\base_from_member.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\binary.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\compare_pointees.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\declval.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\detail\in_place_factory_prefix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\detail\in_place_factory_suffix.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\detail\minstd_rand.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\detail\result_of_iterate.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\enable_if.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\explicit_operator_bool.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\identity_type.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\in_place_factory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\ostream_string.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\result_of.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\string_ref.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\string_ref_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\string_view.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\string_view_fwd.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\swap.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\typed_in_place_factory.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\utility\value_init.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\variant.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\version.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\visit_each.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\wave.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\weak_ptr.hpp" />
+    <ClInclude Include="Dependencies\GLEW\include\GL\eglew.h" />
+    <ClInclude Include="Dependencies\GLEW\include\GL\glew.h" />
+    <ClInclude Include="Dependencies\GLEW\include\GL\glxew.h" />
+    <ClInclude Include="Dependencies\GLEW\include\GL\wglew.h" />
+    <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h" />
+    <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3native.h" />
+    <ClInclude Include="Dependencies\libsoundio\soundio\endian.h" />
+    <ClInclude Include="Dependencies\libsoundio\soundio\soundio.h" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\array\element.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\array\value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\array\view.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\array\view_or_value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\array.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\document.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\helpers.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\impl.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\kvp.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\sub_array.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\basic\sub_document.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\concatenate.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\core.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\array.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\array_context.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\closed_context.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\document.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\helpers.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\key_context.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\single_context.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\builder\stream\value_context.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\config\compiler.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\config\config.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\config\export.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\config\postlude.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\config\prelude.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\config\version.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\decimal128.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\document\element.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\document\value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\document\view.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\document\view_or_value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\enums\binary_sub_type.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\enums\type.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\exception\error_code.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\exception\exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\json.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\oid.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\stdx\make_unique.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\stdx\optional.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\stdx\string_view.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\string\to_string.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\string\view_or_value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\types.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\types\value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\util\functor.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\validate.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\bsoncxx\v_noabi\bsoncxx\view_or_value.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bcon.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-atomic.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-clock.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-compat.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-config.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-context.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-decimal128.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-endian.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-error.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-iter.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-json.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-keys.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-macros.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-md5.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-memory.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-oid.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-prelude.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-reader.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-string.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-types.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-utf8.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-value.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-version-functions.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-version.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson-writer.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libbson-1.0\bson\bson.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-apm.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-bulk-operation.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-change-stream.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-client-pool.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-client-session.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-client.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-collection.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-config.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-cursor.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-database.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-error.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-find-and-modify.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-flags.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-gridfs-bucket.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-gridfs-file-list.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-gridfs-file-page.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-gridfs-file.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-gridfs.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-handshake.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-host-list.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-index.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-init.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-iovec.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-log.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-macros.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-matcher.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-opcode.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-prelude.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-rand.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-read-concern.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-read-prefs.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-server-description.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-socket.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-ssl.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-buffered.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-file.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-gridfs.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-socket.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-tls-libressl.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-tls-openssl.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream-tls.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-stream.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-topology-description.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-uri.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-version-functions.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-version.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc-write-concern.h" />
+    <ClInclude Include="Dependencies\mongoC\include\libmongoc-1.0\mongoc\mongoc.h" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\bulk_write.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\change_stream.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\client.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\client_session.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\collection.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\config\compiler.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\config\config.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\config\export.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\config\postlude.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\config\prelude.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\config\version.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\cursor.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\database.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\command_failed_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\command_started_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\command_succeeded_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\heartbeat_failed_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\heartbeat_started_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\heartbeat_succeeded_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\server_changed_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\server_closed_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\server_description.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\server_opening_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\topology_changed_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\topology_closed_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\topology_description.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\events\topology_opening_event.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\authentication_exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\bulk_write_exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\error_code.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\gridfs_exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\logic_error.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\operation_exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\query_exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\server_error_code.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\exception\write_exception.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\gridfs\bucket.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\gridfs\downloader.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\gridfs\uploader.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\hint.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\index_model.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\index_view.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\instance.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\logger.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\delete_many.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\delete_one.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\insert_one.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\replace_one.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\update_many.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\update_one.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\model\write.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\aggregate.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\apm.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\bulk_write.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\change_stream.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\client.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\client_session.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\count.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\create_collection.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\create_view.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\delete.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\distinct.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\estimated_document_count.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\find.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\find_one_and_delete.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\find_one_and_replace.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\find_one_and_update.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\find_one_common_options.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\gridfs\bucket.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\gridfs\upload.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\index.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\index_view.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\insert.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\pool.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\replace.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\ssl.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\transaction.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\options\update.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\pipeline.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\pool.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\read_concern.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\read_preference.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\bulk_write.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\delete.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\gridfs\upload.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\insert_many.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\insert_one.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\replace_one.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\result\update.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\stdx.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\uri.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\validation_criteria.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\write_concern.hpp" />
+    <ClInclude Include="Dependencies\mongoC\include\mongocxx\v_noabi\mongocxx\write_type.hpp" />
+    <ClInclude Include="src\utils\db\Item.h" />
+    <ClInclude Include="src\glErrors.h" />
+    <ClInclude Include="src\utils\Array.h" />
+    <ClInclude Include="src\utils\Audio.h" />
+    <ClInclude Include="src\utils\CDialogEventHandler.h" />
+    <ClInclude Include="src\utils\Config.h" />
+    <ClInclude Include="src\utils\db\Mongo.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\utils\db\MongoCore.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\utils\Document.h" />
+    <ClInclude Include="src\utils\Fonts.h" />
+    <ClInclude Include="src\utils\misc.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\utils\StringUtils.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_allegro5.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_dx10.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_dx11.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_dx12.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_dx9.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_glut.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_marmalade.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_metal.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_opengl2.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_osx.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_sdl.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_vulkan.h" />
+    <ClInclude Include="src\vendor\imgui\examples\imgui_impl_win32.h" />
+    <ClInclude Include="src\vendor\imgui\examples\libs\gl3w\GL\gl3w.h" />
+    <ClInclude Include="src\vendor\imgui\examples\libs\gl3w\GL\glcorearb.h" />
+    <ClInclude Include="src\vendor\imgui\examples\libs\glfw\include\GLFW\glfw3.h" />
+    <ClInclude Include="src\vendor\imgui\examples\libs\glfw\include\GLFW\glfw3native.h" />
+    <ClInclude Include="src\vendor\imgui\examples\libs\usynergy\uSynergy.h" />
+    <ClInclude Include="src\vendor\imgui\imconfig.h" />
+    <ClInclude Include="src\vendor\imgui\imgui.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\vendor\imgui\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="src\vendor\imgui\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\vendor\json\json.hpp" />
+    <ClInclude Include="src\widgets\Logger.h" />
+    <ClInclude Include="src\widgets\MainMenu.h" />
+    <ClInclude Include="src\widgets\Options.h" />
+    <ClInclude Include="src\widgets\Popup.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Dependencies\GLEW\bin\Release\x64\glew32.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\mongocxx.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\bsoncxx.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\concrt140.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\libbson-1.0.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\libmongoc-1.0.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\msvcp140.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Dependencies\mongoC\bin\vcruntime140.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
