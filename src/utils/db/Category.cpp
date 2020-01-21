@@ -1,5 +1,5 @@
 ﻿#include "Category.h"
-#include "utils/misc.h"
+#include "vendor/imgui/imgui.h"
 #include <vector>
 
 #define CHECK_IS_INIT(...)  if(isInit==false){isInit=true;Init();}
@@ -14,6 +14,7 @@ static bsoncxx::document::value CreateDocument(const std::string& field, const s
 static bsoncxx::document::value CreateDocumentForUpdate(Category cat);
 static Category CreateObject(const bsoncxx::document::view& doc);
 static bool FindInCache(Category& cat, const std::string& filter);
+static bool FindInCache(Category& cat);
 static bool RemoveFromCache(const Category& cat);
 
 static std::vector<Category> categories;
@@ -21,17 +22,30 @@ static bool isInit = false;
 
 bool DB::Category::Init(void)
 {
-    if (isInit == true)
-    {
-        return false;
-    }
-    isInit = true;
-
-    for (auto cat in DB::GetAllDocuments("CEP", "Categories"))
+    categories.clear();
+    for (auto cat : DB::GetAllDocuments("CEP", "Categories"))
     {
         categories.emplace_back(CreateObject(cat));
     }
+    return true;
+}
 
+void Refresh()
+{
+    static double elapsedTime = 0;
+    static int frameCount = 0;
+    const static float deltaTime = ImGui::GetIO().DeltaTime;
+
+    if (frameCount != ImGui::GetFrameCount())
+    {
+        frameCount = ImGui::GetFrameCount();
+        elapsedTime += deltaTime;
+        if (elapsedTime >= 10.0f)
+        {
+            elapsedTime = 0;
+            Init();
+        }
+    }
 }
 
 bool DB::Category::AddCategory(const Category& category)
@@ -92,6 +106,11 @@ bool DeleteCategory(const Category& category)
     return (DB::DeleteDocument(CreateDocument(category), "CEP", "Categories"));
 }
 
+const std::vector<Category>& GetAll()
+{
+    return categories;
+}
+
 bsoncxx::document::value CreateDocument(Category cat)
 {
     auto builder = bsoncxx::builder::stream::document{};
@@ -138,8 +157,11 @@ Category CreateObject(const bsoncxx::document::view& doc)
         {
             name = el.get_utf8().value.data();
         }
+    }
 
-        el = doc["prefix"];
+    el = doc["prefix"];
+    if (el.raw() != nullptr)
+    {
         if (el.type() == bsoncxx::type::k_utf8)
         {
             prefix = el.get_utf8().value.data();
@@ -151,7 +173,21 @@ Category CreateObject(const bsoncxx::document::view& doc)
 
 bool FindInCache(Category& cat, const std::string& filter)
 {
-    for (Category category in categories)
+    for (Category c : categories)
+    {
+        if (c.GetName().find(filter) != std::string::npos ||
+            c.GetPrefix().find(filter) != std::string::npos)
+        {
+            cat = Category(c);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FindInCache(Category& cat)
+{
+    for (Category category : categories)
     {
         if (category == cat)
         {

@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+Config.json
+
 # User-specific files
 *.rsuser
 *.suo
@@ -331,3 +333,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+x64/Release/Config.json

@@ -30,20 +30,6 @@ using bsoncxx::builder::stream::document;
 
 int main(int argc, char** argv)
 {
-    DB::Init();
-
-    DB::Category::Init();
-
-    DB::Category::AddCategory(DB::Category::Category("Default", "DFLT"));
-    DB::Category::Category nc = DB::Category::Category("Default", "DFLT");
-    nc = DB::Category::GetCategoryByName("Default");
-    std::cout << "Edited Category: " << nc.GetName() << ", " << nc.GetPrefix() << std::endl;
-    DB::Category::DeleteCategory(nc);
-    nc = DB::Category::GetCategoryByName("Default");
-    std::cout << "Edited Category: " << nc.GetName() << ", " << nc.GetPrefix() << std::endl;
-
-    while (1);
-
     Application app;
     if (app.GetHasError() == true)
     {

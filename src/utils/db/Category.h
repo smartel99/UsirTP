@@ -43,6 +43,7 @@ private:
 };
 
 bool Init(void);
+void Refresh();
 bool AddCategory(const Category& category);
 
 Category GetCategoryByName(const std::string& name);
@@ -50,6 +51,8 @@ Category GetCategoryByPrefix(const std::string& prefix);
 
 bool EditCategory(const Category& oldCat, const Category& newCat);
 bool DeleteCategory(const Category& category);
+
+const std::vector<Category>& GetAll();
 
 }   // Namespace Category
 }   // namespace DB

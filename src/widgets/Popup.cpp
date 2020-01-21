@@ -1,8 +1,8 @@
-#include "Popup.h"
+﻿#include "Popup.h"
 #include "utils/Fonts.h"
 #include <windows.h>
 
-typedef enum
+enum class FunctionVectorEnum_t
 {
     FUNCTION_VOID_VOID,
     FUNCTION_BOOL_VOID,
@@ -10,7 +10,7 @@ typedef enum
     FUNCTION_BOOL_STRING,
     FUNCTION_BOOL_STRING_CALLBACK,
     FUNCTION_VOID_STRING_STRING_BOOL,
-}FunctionVectorEnum_t;
+};
 
 class FunctionCallObj
 {
@@ -20,8 +20,6 @@ public:
     }
     FunctionVectorEnum_t funcVec;
     size_t functionIndex;
-
-
 };
 
 class VoidStringFunctionObj
@@ -80,7 +78,10 @@ public:
 };
 
 static bool isInit = false;
+static bool showCloseButton = true;
 static std::string popupName = "";
+static std::function<void()> onCloseCallback = nullptr;
+
 static std::vector<std::function<void()>>   functionsVoidVoid;
 static std::vector<std::function<bool()>>   functionsBoolVoid;
 static std::vector<VoidStringFunctionObj>   functionsVoidString;
@@ -93,21 +94,46 @@ static std::vector<FunctionCallObj>    functionCalls;
 static float width = 0.f;
 static float height = 0.f;
 
-void Popup::Init(std::string name)
+void Popup::Init(std::string name, bool showButton)
 {
     functionsVoidVoid.clear();
     functionsBoolVoid.clear();
     functionsVoidString.clear();
     functionsBoolString.clear();
+    functionsBoolStringCallback.clear();
+    functionsVoidStringStringBool.clear();
 
     functionCalls.clear();
     isInit = true;
     popupName = name;
+    showCloseButton = showButton;
+    onCloseCallback = nullptr;
 }
 
-void Popup::Render(void)
+void Popup::Init(std::string name, std::function<void()> onCloseEvent)
 {
-    if ( isInit == false )
+    functionsVoidVoid.clear();
+    functionsBoolVoid.clear();
+    functionsVoidString.clear();
+    functionsBoolString.clear();
+    functionsBoolStringCallback.clear();
+    functionsVoidStringStringBool.clear();
+
+    functionCalls.clear();
+    isInit = true;
+    popupName = name;
+    showCloseButton = true;
+    onCloseCallback = onCloseEvent;
+}
+
+bool Popup::IsOpen()
+{
+    return isInit;
+}
+
+void Popup::Render()
+{
+    if (isInit == false)
     {
         return;
     }
@@ -149,29 +175,41 @@ void Popup::Render(void)
         #pragma endregion
 
         #pragma region Popup Content
-            for ( FunctionCallObj func : functionCalls )
+            for (FunctionCallObj func : functionCalls)
             {
-                switch ( func.funcVec )
+                switch (func.funcVec)
                 {
-                    case FUNCTION_VOID_VOID:
-                        functionsVoidVoid[func.functionIndex]();
+                    case FunctionVectorEnum_t::FUNCTION_VOID_VOID:
+                        if (functionsVoidVoid[func.functionIndex])
+                        {
+                            functionsVoidVoid[func.functionIndex]();
+                        }
                         break;
-                    case FUNCTION_BOOL_VOID:
-                        functionsBoolVoid[func.functionIndex]();
+                    case FunctionVectorEnum_t::FUNCTION_BOOL_VOID:
+                        if (functionsBoolVoid[func.functionIndex])
+                        {
+                            functionsBoolVoid[func.functionIndex]();
+                        }
                         break;
-                    case FUNCTION_VOID_STRING:  // In a scope due to its usage of variables.
+                    case FunctionVectorEnum_t::FUNCTION_VOID_STRING:  // In a scope due to its usage of variables.
                     {
-                        functionsVoidString[func.functionIndex].func(functionsVoidString[func.functionIndex].arg);
+                        if (functionsVoidString[func.functionIndex].func)
+                        {
+                            functionsVoidString[func.functionIndex].func(functionsVoidString[func.functionIndex].arg);
+                        }
                         break;
                     }
-                    case FUNCTION_BOOL_STRING:  // In a scope due to its usage of variables.
+                    case FunctionVectorEnum_t::FUNCTION_BOOL_STRING:  // In a scope due to its usage of variables.
                     {
                         std::function<bool(std::string&)> f = functionsBoolString[func.functionIndex].func;
                         std::string arg = functionsBoolString[func.functionIndex].arg;
-                        f(arg);
+                        if (f)
+                        {
+                            f(arg);
+                        }
                         break;
                     }
-                    case FUNCTION_BOOL_STRING_CALLBACK:
+                    case FunctionVectorEnum_t::FUNCTION_BOOL_STRING_CALLBACK:
                     {
                         std::function<bool(std::string&)> f =
                             functionsBoolStringCallback[func.functionIndex].func;
@@ -180,22 +218,27 @@ void Popup::Render(void)
                         std::string label =
                             functionsBoolStringCallback[func.functionIndex].label;
 
-                        if ( f(label) == true )
+                        if (f)
                         {
-                            cb();
-                            isInit = false;
+                            if (f(label) == true)
+                            {
+                                cb();
+                                isInit = false;
+                            }
                         }
                         break;
                     }
-                    case FUNCTION_VOID_STRING_STRING_BOOL:
+                    case FunctionVectorEnum_t::FUNCTION_VOID_STRING_STRING_BOOL:
                     {
                         std::function<void(std::string&, std::string&, bool)> f =
                             functionsVoidStringStringBool[func.functionIndex].func;
                         std::string s1 = functionsVoidStringStringBool[func.functionIndex].label;
                         std::string s2 = functionsVoidStringStringBool[func.functionIndex].arg;
                         bool b1 = functionsVoidStringStringBool[func.functionIndex].arg2;
-
-                        f(s1, s2, b1);
+                        if (f)
+                        {
+                            f(s1, s2, b1);
+                        }
                         break;
                     }
                     default:
@@ -210,19 +253,25 @@ void Popup::Render(void)
             ImGui::Separator();
             ImGui::Spacing();
 
-            //ImGui::SetCursorScreenPos(okButtonLoc);
-            ImGui::Columns(3, "##PopupCloseButtonColumns", false);
-            ImGui::NextColumn();
-            float colWidth = ImGui::GetColumnWidth();
-            if ( ImGui::Button("Close", ImVec2(115.f, 0)) )
+            if (showCloseButton == true)
             {
-                isInit = false;
+                ImGui::Columns(3, "##PopupCloseButtonColumns", false);
+                ImGui::NextColumn();
+                float colWidth = ImGui::GetColumnWidth();
+                if (ImGui::Button("Close", ImVec2(115.f, 0)))
+                {
+                    isInit = false;
+                    if (onCloseCallback)
+                    {
+                        onCloseCallback();
+                    }
+                }
+                ImGui::NextColumn();
+                ImGui::Columns(1);
+                ImVec2 winSize = ImGui::GetWindowSize();
+                winSize.y += ImGui::GetScrollMaxY();
+                ImGui::SetWindowSize("PopupChild", ImVec2(), ImGuiCond_Always);
             }
-            ImGui::NextColumn();
-            ImGui::Columns(1);
-            ImVec2 winSize = ImGui::GetWindowSize();
-            winSize.y += ImGui::GetScrollMaxY();
-            ImGui::SetWindowSize("PopupChild", ImVec2(), ImGuiCond_Always);
         #pragma endregion
         }
         ImGui::EndChild();
@@ -235,31 +284,35 @@ void Popup::Render(void)
 void Popup::AddCall(std::function<void()> func)
 {
     functionsVoidVoid.emplace_back(func);
-    functionCalls.emplace_back(FunctionCallObj(FUNCTION_VOID_VOID, functionsVoidVoid.size() - 1));
+    functionCalls.emplace_back(FunctionCallObj(FunctionVectorEnum_t::FUNCTION_VOID_VOID,
+                                               functionsVoidVoid.size() - 1));
 }
 
 void Popup::AddCall(std::function<bool()> func)
 {
     functionsBoolVoid.emplace_back(func);
-    functionCalls.emplace_back(FunctionCallObj(FUNCTION_BOOL_VOID, functionsBoolVoid.size() - 1));
+    functionCalls.emplace_back(FunctionCallObj(FunctionVectorEnum_t::FUNCTION_BOOL_VOID,
+                                               functionsBoolVoid.size() - 1));
 }
 
 void Popup::AddCall(std::function<void(std::string&)> func, std::string arg)
 {
     functionsVoidString.emplace_back(VoidStringFunctionObj(func, arg));
-    functionCalls.emplace_back(FunctionCallObj(FUNCTION_VOID_STRING, functionsVoidString.size() - 1));
+    functionCalls.emplace_back(FunctionCallObj(FunctionVectorEnum_t::FUNCTION_VOID_STRING,
+                                               functionsVoidString.size() - 1));
 }
 
 void Popup::AddCall(std::function<bool(std::string&)> func, std::string arg)
 {
     functionsBoolString.emplace_back(BoolStringFunctionObj(func, arg));
-    functionCalls.emplace_back(FunctionCallObj(FUNCTION_BOOL_STRING, functionsBoolString.size() - 1));
+    functionCalls.emplace_back(FunctionCallObj(FunctionVectorEnum_t::FUNCTION_BOOL_STRING,
+                                               functionsBoolString.size() - 1));
 }
 
 void Popup::AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb)
 {
     functionsBoolStringCallback.emplace_back(BoolStringCallbackFunctionObj(func, arg, cb));
-    functionCalls.emplace_back(FunctionCallObj(FUNCTION_BOOL_STRING_CALLBACK,
+    functionCalls.emplace_back(FunctionCallObj(FunctionVectorEnum_t::FUNCTION_BOOL_STRING_CALLBACK,
                                                functionsBoolStringCallback.size() - 1));
 }
 
@@ -269,7 +322,7 @@ void Popup::AddCall(std::function<void(std::string&, std::string&, bool)> f,
                     bool b)
 {
     functionsVoidStringStringBool.emplace_back(VoidStringStringBoolFunctionObj(f, s1, s2, b));
-    functionCalls.emplace_back(FunctionCallObj(FUNCTION_VOID_STRING_STRING_BOOL,
+    functionCalls.emplace_back(FunctionCallObj(FunctionVectorEnum_t::FUNCTION_VOID_STRING_STRING_BOOL,
                                                functionsVoidStringStringBool.size() - 1));
 }
 
@@ -283,7 +336,7 @@ void Popup::TextCentered(std::string& txt)
     // Render strings with '\n' in them as individual buttons in a way
     // that makes them look like one.
     size_t crPos = txt.find_first_of('\n');
-    if ( crPos != std::string::npos )
+    if (crPos != std::string::npos)
     {
         std::string firstPart = std::string(txt.substr(0, crPos));
         std::string rest = std::string(txt.substr(crPos + 1));
@@ -311,7 +364,7 @@ void Popup::TextCentered(std::string& txt)
 void Popup::TextStylized(std::string& txt, std::string& style, bool centered)
 {
     Fonts::Push(style);
-    if ( centered == false )
+    if (centered == false)
     {
         Popup::Text(txt);
     }

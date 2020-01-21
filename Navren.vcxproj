@@ -149,12 +149,101 @@
     <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\widgets\CategoryViewer.cpp" />
     <ClCompile Include="src\widgets\Logger.cpp" />
+    <ClCompile Include="src\widgets\Login.cpp" />
     <ClCompile Include="src\widgets\MainMenu.cpp" />
     <ClCompile Include="src\widgets\Options.cpp" />
     <ClCompile Include="src\widgets\Popup.cpp" />
+    <ClCompile Include="src\widgets\Viewer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\boost\boost\algorithm\algorithm.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\apply_permutation.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\clamp.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\all_of.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\any_of.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\copy_if.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\copy_n.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\find_if_not.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\iota.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\is_partitioned.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\is_permutation.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\is_sorted.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\none_of.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\one_of.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\partition_copy.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx11\partition_point.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx14\equal.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx14\is_permutation.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx14\mismatch.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\exclusive_scan.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\for_each_n.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\inclusive_scan.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\reduce.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\transform_exclusive_scan.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\transform_inclusive_scan.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\cxx17\transform_reduce.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\find_backward.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\find_not.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\gather.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\hex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\is_palindrome.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\is_partitioned_until.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\minmax.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\minmax_element.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\searching\boyer_moore.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\searching\boyer_moore_horspool.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\searching\detail\bm_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\searching\detail\debugging.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\searching\knuth_morris_pratt.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\sort_subrange.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\case_conv.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\classification.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\compare.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\concept.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\config.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\constants.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\case_conv.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\classification.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\finder.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\finder_regex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\find_format.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\find_format_all.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\find_format_store.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\find_iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\formatter.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\formatter_regex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\predicate.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\replace_storage.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\sequence.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\trim.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\detail\util.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\erase.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\find.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\finder.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\find_format.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\find_iterator.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\formatter.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\iter_find.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\join.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\predicate.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\predicate_facade.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\regex.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\regex_find_format.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\replace.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\sequence_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\split.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\std\list_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\std\rope_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\std\slist_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\std\string_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\std_containers_traits.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\trim.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\trim_all.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string\yes_no_type.hpp" />
+    <ClInclude Include="Dependencies\boost\boost\algorithm\string_regex.hpp" />
     <ClInclude Include="src\utils\db\Category.h" />
     <ClInclude Include="Dependencies\boost\boost\align.hpp" />
     <ClInclude Include="Dependencies\boost\boost\aligned_storage.hpp" />
@@ -807,10 +896,22 @@
     <ClInclude Include="src\vendor\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\vendor\json\json.hpp" />
+    <ClInclude Include="src\widgets\CategoryViewer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\widgets\Logger.h" />
+    <ClInclude Include="src\widgets\Login.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\widgets\MainMenu.h" />
     <ClInclude Include="src\widgets\Options.h" />
     <ClInclude Include="src\widgets\Popup.h" />
+    <ClInclude Include="src\widgets\Viewer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\GLEW\bin\Release\x64\glew32.dll">

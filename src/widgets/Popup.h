@@ -1,4 +1,4 @@
-/**
+﻿/**
  ******************************************************************************
  * @addtogroup Popup
  * @{
@@ -36,23 +36,25 @@ namespace Popup
 
 /*****************************************************************************/
 /* Exported functions */
-    void Init(std::string name = "Popup");
-    void Render(void);
-    void AddCall(std::function<void()> func);
-    void AddCall(std::function<bool()> func);
-    void AddCall(std::function<void(std::string&)> func, std::string arg);
-    void AddCall(std::function<bool(std::string&)> func, std::string arg);
-    void AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb);
-    void AddCall(std::function<void(std::string&, std::string&, bool)>,
-                 std::string txt = "",
-                 std::string arg1 = "",
-                 bool arg2 = false);
+void Init(std::string name = "Popup", bool showCloseButton = true);
+void Init(std::string name, std::function<void()> onCloseEvent);
+bool IsOpen();
+void Render();
+void AddCall(std::function<void()> func);
+void AddCall(std::function<bool()> func);
+void AddCall(std::function<void(std::string&)> func, std::string arg);
+void AddCall(std::function<bool(std::string&)> func, std::string arg);
+void AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb);
+void AddCall(std::function<void(std::string&, std::string&, bool)>,
+             std::string txt = "",
+             std::string arg1 = "",
+             bool arg2 = false);
 
-    void Text(std::string& txt);
-    void TextCentered(std::string& txt);
-    void TextStylized(std::string& txt, std::string& style, bool centered = false);
-    bool Button(std::string& label);
-    void SameLine(void);
+void Text(std::string& txt);
+void TextCentered(std::string& txt);
+void TextStylized(std::string& txt, std::string& style, bool centered = false);
+bool Button(std::string& label);
+void SameLine();
 }
 /* Have a wonderful day :) */
 #endif /* _Popup */

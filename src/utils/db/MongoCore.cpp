@@ -118,3 +118,44 @@ bool DB::DeleteDocument(const bsoncxx::document::value& filter, const std::strin
         return false;
     }
 }
+
+bool DB::IsUserAdmin(const std::string& db)
+{
+    using namespace bsoncxx::builder::basic;
+    try
+    {
+        auto serverStatus = CLIENT.database(db).run_command(make_document(kvp("serverStatus", 1)));
+
+        // if we are admin, the "ok" field of the reply will be one, otherwise it will be 0.
+        if (serverStatus.view()["ok"].get_double() != double(1))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    catch (const std::exception & e)
+    {
+        // An exception is thrown if the user doesn't have the required permissions.
+        return false;
+    }
+}
+
+bool DB::Login(const std::string& username, const std::string& pwd, const std::string& authDb)
+{
+    using namespace bsoncxx::builder::basic;
+    try
+    {
+        auto loginStatus = CLIENT.database(authDb).run_command(make_document
+        (kvp("auth", make_document(
+            kvp("username", username),
+            kvp("password", pwd)))));
+        return true;
+    }
+    catch (mongocxx::operation_exception)
+    {
+        return false;
+    }
+}

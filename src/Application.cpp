@@ -1,10 +1,12 @@
-#include "Application.h"
+﻿#include "Application.h"
 #include "utils/Fonts.h"
 #include "utils/Config.h"
 #include "widgets/MainMenu.h"
 #include "widgets/Logger.h"
 #include "widgets/Options.h"
 #include "widgets/Popup.h"
+#include "widgets/Viewer.h"
+#include "widgets/CategoryViewer.h"
 #include <iostream>
 #include <windows.h>
 
@@ -15,7 +17,7 @@ Application::Application(void)
     m_width = float(GetSystemMetrics(SM_CXSCREEN));
     m_heigth = float(GetSystemMetrics(SM_CYSCREEN));
     /* Initialize GLFW library */
-    if ( glfwInit() == GLFW_FALSE )
+    if (glfwInit() == GLFW_FALSE)
     {
         std::cout << "Unable to initialize GLFW!" << std::endl;
         return;
@@ -29,7 +31,7 @@ Application::Application(void)
     /* Create a windowed mode window and its OpenGl context */
     m_window = glfwCreateWindow(int(m_width), int(m_heigth),
                                 "Navren Test-Bench Script Interpreter", nullptr, nullptr);
-    if ( m_window == nullptr )
+    if (m_window == nullptr)
     {
         /* Unable to create window */
         std::cout << "Unable to create window!" << std::endl;
@@ -43,7 +45,7 @@ Application::Application(void)
     glfwSwapInterval(1);
 
     /* Initialize the GLEW library */
-    if ( glewInit() != GLEW_OK )
+    if (glewInit() != GLEW_OK)
     {
         std::cout << "Unable to initialize GLEW!" << std::endl;
         m_window = nullptr;
@@ -70,7 +72,7 @@ Application::Application(void)
     {
         fontSize = Config::GetField<int>("FontSize");
     }
-    catch ( std::invalid_argument )
+    catch (std::invalid_argument)
     {
         Config::SetField<int>("FontSize", fontSize);
     }
@@ -86,6 +88,13 @@ Application::Application(void)
 
     // Popup
     AddWidget(Popup::Render);
+
+    // Viewer
+    Viewer::Init();
+    AddWidget(Viewer::Render);
+
+    // Category Viewer
+    AddWidget(CategoryViewer::Render);
 
     // Main menu.
     MainMenu mainMenu;
@@ -111,7 +120,7 @@ void Application::AddWidget(std::function<void()> widgetFunction)
 
 void Application::Run(void)
 {
-    while ( !glfwWindowShouldClose(m_window) )
+    while (!glfwWindowShouldClose(m_window))
     {
         GLCall(glClearColor(RENDER_COLOR_BLACK));
 
@@ -130,7 +139,7 @@ void Application::Run(void)
 
 //         ImGui::ShowMetricsWindow();
 
-        for ( const std::function<void()>& widget : m_widgets )
+        for (const std::function<void()>& widget : m_widgets)
         {
             /* Process all widgets */
             widget();
