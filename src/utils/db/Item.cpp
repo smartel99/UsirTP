@@ -71,6 +71,20 @@ Item DB::Item::GetItemByID(const std::string& prefix)
     throw std::logic_error("Not Implemented");
 }
 
+int GetNewId()
+{
+    int max = 0;
+    for (auto& item : items)
+    {
+        if (std::stoi(item.GetId()) >= max)
+        {
+            max = std::stoi(item.GetId());
+        }
+    }
+
+    return max + 1;
+}
+
 bool DB::Item::EditItem(const Item& oldItem, const Item& newItem)
 {
     RemoveFromCache(oldItem);
@@ -104,6 +118,7 @@ bsoncxx::document::value CreateDocument(Item it)
         << "referenceLink" << it.GetReferenceLink()
         << "price" << float(it.GetPrice())
         << "quantity" << it.GetQuantity()
+        << "unit" << it.GetUnit()
         << "status" << it.GetStatus()
         << bsoncxx::builder::stream::finalize;
 
@@ -133,6 +148,7 @@ bsoncxx::document::value CreateDocumentForUpdate(Item it)
         << "referenceLink" << it.GetReferenceLink()
         << "price" << it.GetPrice()
         << "quantity" << it.GetQuantity()
+        << "unit" << it.GetUnit()
         << "status" << it.GetStatus()
         << bsoncxx::builder::stream::close_document
         << bsoncxx::builder::stream::finalize;
@@ -149,6 +165,7 @@ Item CreateObject(const bsoncxx::document::view& doc)
     std::string refLink = "N/A";
     float price = 0.00f;
     float quantity = 0.f;
+    std::string unit = "N/A";
     ItemStatus status = ItemStatus::active;
 
     bsoncxx::document::element el = doc["id"];
@@ -218,6 +235,15 @@ Item CreateObject(const bsoncxx::document::view& doc)
         }
     }
 
+    el = doc["unit"];
+    if (el.raw() != nullptr)
+    {
+        if (el.type() == bsoncxx::type::k_utf8)
+        {
+            unit = el.get_utf8().value.data();
+        }
+    }
+
     el = doc["status"];
     if (el.raw() != nullptr)
     {
@@ -227,7 +253,7 @@ Item CreateObject(const bsoncxx::document::view& doc)
         }
     }
 
-    return Item(id, description, { catName, catPref }, refLink, price, quantity, status);
+    return Item(id, description, { catName, catPref }, refLink, price, quantity, unit, status);
 }
 
 bool FindInCache(Item& it, const std::string& filter)

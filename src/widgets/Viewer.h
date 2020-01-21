@@ -35,7 +35,6 @@ namespace Viewer
 /* Exported functions */
 void Init();
 void Render();
-
 }
 /* Have a wonderful day :) */
 #endif /* _Viewer */

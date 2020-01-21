@@ -1,15 +1,21 @@
 ﻿#include "MongoCore.h"
 #include "vendor/json/json.hpp"
+#include "widgets/Logger.h"
 #include <vector>
 
 #define CLIENT client->GetClient()
+static mongocxx::instance instance;
 
 class Client
 {
 public:
     Client(const std::string& host, const mongocxx::options::client& options) :
-        m_instance{}, m_client(mongocxx::uri(host), options)
+        m_client(mongocxx::uri(host), options)
     {
+    }
+    ~Client()
+    {
+        m_client.~client();
     }
 
     inline mongocxx::client& GetClient(void)
@@ -19,31 +25,22 @@ public:
 
 private:
     mongocxx::client m_client;
-    mongocxx::instance m_instance;
 };
 
-static Client* client = nullptr;
+static Client* client;
 static bool isInit = false;
 
 bool DB::Init(const std::string& host, const mongocxx::options::client& options)
 {
-    static Client c = Client(host, options);
+//     client.~Client();
+    Logging::System.Debug("Using host: ", host);
+    client = new Client(host, options);
     if (isInit == true)
     {
         return false;
     }
 
     isInit = true;
-    client = &c;
-
-    if (client == nullptr)
-    {
-        std::cout << "Client is null!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Hostname: " << CLIENT.uri().to_string() << std::endl;
-    }
 
     return true;
 }
@@ -145,17 +142,6 @@ bool DB::IsUserAdmin(const std::string& db)
 
 bool DB::Login(const std::string& username, const std::string& pwd, const std::string& authDb)
 {
-    using namespace bsoncxx::builder::basic;
-    try
-    {
-        auto loginStatus = CLIENT.database(authDb).run_command(make_document
-        (kvp("auth", make_document(
-            kvp("username", username),
-            kvp("password", pwd)))));
-        return true;
-    }
-    catch (mongocxx::operation_exception)
-    {
-        return false;
-    }
+    isInit = false;
+    return Init("mongodb://" + username + ":" + pwd + "@192.168.0.152");
 }

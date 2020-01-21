@@ -23,9 +23,9 @@ void Login::OpenPopup()
     Popup::Init("Login", false);
     Popup::AddCall(HandleUsernameInput);
     Popup::AddCall(HandlePasswordInput);
-    Popup::AddCall(Popup::Button, "Login", TryLogin);
+    Popup::AddCall(Popup::Button, "Login", TryLogin, true);
     Popup::AddCall(Popup::SameLine);
-    Popup::AddCall(Popup::Button, "Cancel", Cancel);
+    Popup::AddCall(Popup::Button, "Cancel", Cancel, true);
 }
 
 
@@ -74,7 +74,7 @@ void LoginGood()
 
 void LoginBad()
 {
-    Popup::Init("Login");
+    Popup::Init("Login", std::function<void()>(OpenPopup));
     Popup::AddCall(ImGui::Spacing);
     Popup::AddCall(Popup::TextStylized, "Invalid username and/or password!", "Bold", true);
 }

@@ -41,13 +41,13 @@ void MainMenu::Process()
 
 void MainMenu::FileMenu(void)
 {
-    if (ImGui::MenuItem("Open Logger"))
-    {
-        Logging::OpenConsole();
-    }
     if (ImGui::MenuItem("Login"))
     {
         Login::OpenPopup();
+    }
+    if (ImGui::MenuItem("Open Logger"))
+    {
+        Logging::OpenConsole();
     }
     ImGui::Separator();
     if (ImGui::MenuItem("Options"))

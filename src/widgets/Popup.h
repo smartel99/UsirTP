@@ -44,7 +44,7 @@ void AddCall(std::function<void()> func);
 void AddCall(std::function<bool()> func);
 void AddCall(std::function<void(std::string&)> func, std::string arg);
 void AddCall(std::function<bool(std::string&)> func, std::string arg);
-void AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb);
+void AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb, bool noClose = false);
 void AddCall(std::function<void(std::string&, std::string&, bool)>,
              std::string txt = "",
              std::string arg1 = "",
