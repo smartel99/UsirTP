@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <algorithm>
 
+#pragma region Classes Definitions
 enum class FunctionVectorEnum_t
 {
     FUNCTION_VOID_VOID,
@@ -41,9 +42,6 @@ public:
         m_name(name + "##"), m_shouldShowCloseButton(shouldShowCloseButton),
         m_onCloseCallback(onCloseCallback), m_callStack(std::vector<FunctionCallObj>())
     {
-//         std::string id = "qwertyuioplkjhgfdsazxcvbnm1234567890";
-//         std::shuffle(id.begin(), id.end(), std::rand);
-//         m_name += id;
     }
 
     bool operator==(const PopupCallStack& other)
@@ -115,6 +113,10 @@ public:
     std::string arg;
     bool arg2;
 };
+#pragma endregion
+
+static void SetTextColor(const std::string& col);
+
 
 static bool isInit = false;
 static bool showCloseButton = true;
@@ -361,9 +363,9 @@ void Popup::AddCall(std::function<bool(std::string&)> func, std::string arg)
                         functionsBoolString.size() - 1));
 }
 
-void Popup::AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb, bool noClose)
+void Popup::AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb, bool closeOnCb)
 {
-    functionsBoolStringCallback.emplace_back(BoolStringCallbackFunctionObj(func, arg, cb, noClose));
+    functionsBoolStringCallback.emplace_back(BoolStringCallbackFunctionObj(func, arg, cb, closeOnCb));
     functionCalls[functionCalls.size() - 1].m_callStack.emplace_back(
         FunctionCallObj(FunctionVectorEnum_t::FUNCTION_BOOL_STRING_CALLBACK,
                         functionsBoolStringCallback.size() - 1));
@@ -417,7 +419,16 @@ void Popup::TextCentered(std::string& txt)
 
 void Popup::TextStylized(std::string& txt, std::string& style, bool centered)
 {
-    Fonts::Push(style);
+    std::string font = style;
+    std::string color = "";
+    if (style.find('/') != std::string::npos)
+    {
+        font = style.substr(0, style.find('/') - 1);
+        color = style.substr(style.find('/') + 1);
+    }
+    SetTextColor(color);
+
+    Fonts::Push(font);
     if (centered == false)
     {
         Popup::Text(txt);
@@ -427,6 +438,7 @@ void Popup::TextStylized(std::string& txt, std::string& style, bool centered)
         Popup::TextCentered(txt);
     }
     Fonts::Pop();
+    ImGui::PopStyleColor();
 }
 
 bool Popup::Button(std::string& label)
@@ -434,7 +446,23 @@ bool Popup::Button(std::string& label)
     return ImGui::Button(label.c_str());
 }
 
-void Popup::SameLine(void)
+void Popup::SameLine()
 {
     ImGui::SameLine();
+}
+
+void SetTextColor(const std::string& col)
+{
+    ImU32 c = 0;
+    if (col.empty())
+    {
+        c = size_t(ImGui::GetColorU32(ImGuiCol_Text));
+    }
+    else
+    {
+//         char* end;
+//         c = std::strtoul(col.c_str(), &end, 10);
+        c = StringUtils::StringToNum<unsigned long>(col);
+    }
+    ImGui::PushStyleColor(ImGuiCol_Text, ImU32(c));
 }

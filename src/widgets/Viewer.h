@@ -3,10 +3,10 @@
  * @addtogroup Viewer
  * @{
  * @file    Viewer
- * @author  Samuel Martel
+ * @author  Client Microdata
  * @brief   Header for the Viewer module.
  *
- * @date 1/20/2020 10:42:32 AM
+ * @date 1/23/2020 12:27:13 PM
  *
  ******************************************************************************
  */
@@ -35,6 +35,7 @@ namespace Viewer
 /* Exported functions */
 void Init();
 void Render();
+
 }
 /* Have a wonderful day :) */
 #endif /* _Viewer */

@@ -44,9 +44,9 @@ std::string GetCurrentClientHostName(void);
 bsoncxx::document::view GetDocument(const std::string& db = "",
                                     const std::string& col = "",
                                     const bsoncxx::document::value& filter = bsoncxx::document::value({}));
-mongocxx::cursor GetAllDocuments(std::string db = "",
-                                 std::string col = "",
-                                 const bsoncxx::document::value& filter = bsoncxx::document::value({}));
+bsoncxx::stdx::optional<mongocxx::cursor>  GetAllDocuments(std::string db = "",
+                                                           std::string col = "",
+                                                           const bsoncxx::document::value& filter = bsoncxx::document::value({}));
 bool InsertDocument(const bsoncxx::document::value& doc,
                     const std::string& db = "",
                     const std::string& col = "");
@@ -58,7 +58,7 @@ bool DeleteDocument(const bsoncxx::document::value& filter = bsoncxx::document::
                     const std::string& db = "",
                     const std::string& col = "");
 
-bool IsUserAdmin(const std::string& db = "admin");
+bool HasUserWritePrivileges(const std::string& db = "admin");
 bool Login(const std::string& username, const std::string& pwd, const std::string& authDb = "admin");
 }
 /* Have a wonderful day :) */

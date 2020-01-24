@@ -4,6 +4,7 @@
 #include <vector>
 
 #define CLIENT client->GetClient()
+#define CLIENT_IS_VALID (client != nullptr)
 static mongocxx::instance instance;
 
 class Client
@@ -32,9 +33,14 @@ static bool isInit = false;
 
 bool DB::Init(const std::string& host, const mongocxx::options::client& options)
 {
-//     client.~Client();
-    Logging::System.Debug("Using host: ", host);
-    client = new Client(host, options);
+    try
+    {
+        client = new Client(host, options);
+    }
+    catch (const mongocxx::logic_error & e)
+    {
+        Logging::System.Error("An Error Occurred When Logging In: ", e.what());
+    }
     if (isInit == true)
     {
         return false;
@@ -54,6 +60,11 @@ bsoncxx::document::view DB::GetDocument(const std::string& db,
                                         const std::string& col,
                                         const bsoncxx::document::value& filter)
 {
+    if (!CLIENT_IS_VALID)
+    {
+        return bsoncxx::document::value({});
+    }
+
     bsoncxx::stdx::optional<bsoncxx::document::value> result =
         CLIENT.database(db).collection(col).find_one(filter.view());
     if (result)     // If the document was found:
@@ -67,16 +78,27 @@ bsoncxx::document::view DB::GetDocument(const std::string& db,
     }
 }
 
-mongocxx::cursor DB::GetAllDocuments(std::string db,
-                                     std::string col,
-                                     const bsoncxx::document::value& filter)
+bsoncxx::stdx::optional<mongocxx::cursor> DB::GetAllDocuments(std::string db,
+                                                              std::string col,
+                                                              const bsoncxx::document::value& filter)
 {
-    mongocxx::cursor cursor = CLIENT.database(db).collection(col).find(filter.view());
-    return cursor;
+    if (CLIENT_IS_VALID)
+    {
+        mongocxx::cursor cursor = CLIENT.database(db).collection(col).find(filter.view());
+        return cursor;
+    }
+    else
+    {
+        return {};
+    }
 }
 
 bool DB::InsertDocument(const bsoncxx::document::value& doc, const std::string& db, const std::string& col)
 {
+    if (!CLIENT_IS_VALID)
+    {
+        return false;
+    }
     auto collection = CLIENT[db][col];
     bsoncxx::stdx::optional<mongocxx::result::insert_one> result =
         collection.insert_one(doc.view());
@@ -88,6 +110,10 @@ bool DB::InsertDocument(const bsoncxx::document::value& doc, const std::string& 
 bool DB::UpdateDocument(const bsoncxx::document::value& filter, const bsoncxx::document::value& doc,
                         const std::string& db, const std::string& col)
 {
+    if (!CLIENT_IS_VALID)
+    {
+        return false;
+    }
     bsoncxx::stdx::optional<mongocxx::result::update> result =
         CLIENT.database(db).collection(col).update_one(filter.view(), doc.view());
 
@@ -103,6 +129,10 @@ bool DB::UpdateDocument(const bsoncxx::document::value& filter, const bsoncxx::d
 
 bool DB::DeleteDocument(const bsoncxx::document::value& filter, const std::string& db, const std::string& col)
 {
+    if (!CLIENT_IS_VALID)
+    {
+        return false;
+    }
     bsoncxx::stdx::optional<mongocxx::result::delete_result> r =
         CLIENT.database(db).collection(col).delete_one(filter.view());
 
@@ -116,22 +146,22 @@ bool DB::DeleteDocument(const bsoncxx::document::value& filter, const std::strin
     }
 }
 
-bool DB::IsUserAdmin(const std::string& db)
+bool DB::HasUserWritePrivileges(const std::string& db)
 {
-    using namespace bsoncxx::builder::basic;
+    if (!CLIENT_IS_VALID)
+    {
+        return false;
+    }
+
+    using namespace bsoncxx::builder::stream;
     try
     {
-        auto serverStatus = CLIENT.database(db).run_command(make_document(kvp("serverStatus", 1)));
-
-        // if we are admin, the "ok" field of the reply will be one, otherwise it will be 0.
-        if (serverStatus.view()["ok"].get_double() != double(1))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        auto builder = document{};
+        bsoncxx::document::value doc = builder
+            << "field1" << "Value1"
+            << finalize;
+        InsertDocument(doc, "CEP", "privilegesVerification");
+        DeleteDocument(doc, "CEP", "privilegesVerification");
     }
     catch (const std::exception & e)
     {
@@ -142,6 +172,10 @@ bool DB::IsUserAdmin(const std::string& db)
 
 bool DB::Login(const std::string& username, const std::string& pwd, const std::string& authDb)
 {
+    if (!CLIENT_IS_VALID)
+    {
+        return false;
+    }
     isInit = false;
     return Init("mongodb://" + username + ":" + pwd + "@192.168.0.152");
 }

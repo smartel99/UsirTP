@@ -13,6 +13,7 @@ static void MakeEditPopup();
 static void MakeDeletePopup();
 static void HandlePopupNameInput();
 static void HandlePopupPrefixInput();
+static void HandlePopupSuffixInput();
 static void SaveNewCategory();
 static void CancelAdd();
 static void SaveEditedCategory();
@@ -21,6 +22,7 @@ static void DeleteCategory();
 static bool isOpen = false;
 static char tmpNameBuf[200] = { 0 };
 static char tmpPrefixBuf[5] = { 0 };
+static char tmpSufixBuf[2] = { 0 };
 static DB::Category::Category tmpCat;
 
 void CategoryViewer::Render()
@@ -46,7 +48,7 @@ void CategoryViewer::Render()
 
 #pragma region Control Buttons
     // Only show buttons if user has admin rights.
-    if (DB::IsUserAdmin())
+    if (DB::HasUserWritePrivileges())
     {
         if (ImGui::Button("Add"))
         {
@@ -54,9 +56,10 @@ void CategoryViewer::Render()
             Popup::Init("Add New Category", false);
             Popup::AddCall(HandlePopupNameInput);
             Popup::AddCall(HandlePopupPrefixInput);
-            Popup::AddCall(Popup::Button, "Accept", SaveNewCategory);
+            Popup::AddCall(HandlePopupSuffixInput);
+            Popup::AddCall(Popup::Button, "Accept", SaveNewCategory, true);
             Popup::AddCall(Popup::SameLine);
-            Popup::AddCall(Popup::Button, "Cancel", CancelAdd);
+            Popup::AddCall(Popup::Button, "Cancel", CancelAdd, true);
             Popup::AddCall(ImGui::Spacing);
             Popup::AddCall(ImGui::Separator);
             Popup::AddCall(ImGui::Spacing);
@@ -83,7 +86,7 @@ void CategoryViewer::Render()
     ImGui::BeginChildFrame(ImGui::GetID("##CategoryChildFrameID"), ImVec2());
 
     // Header
-    ImGui::Columns(2);
+    ImGui::Columns(3);
     if (ImGui::Selectable("Name", orderByName))
     {
         orderByName = true;
@@ -93,6 +96,8 @@ void CategoryViewer::Render()
     {
         orderByName = false;
     }
+    ImGui::NextColumn();
+    ImGui::Text("Suffix");
     ImGui::NextColumn();
 
     // Categories
@@ -136,6 +141,15 @@ void CategoryViewer::Render()
         ImGui::Text(category.GetName().c_str());
         ImGui::NextColumn();
         ImGui::Text(category.GetPrefix().c_str());
+        ImGui::NextColumn();
+        if (category.GetSuffix() != '\0')
+        {
+            ImGui::Text("%c", category.GetSuffix());
+        }
+        else
+        {
+            ImGui::Text("None");
+        }
         ImGui::NextColumn();
     }
 
@@ -185,12 +199,14 @@ void MakeEditPopup()
 {
     strcpy_s(tmpNameBuf, sizeof(tmpNameBuf), tmpCat.GetName().c_str());
     strcpy_s(tmpPrefixBuf, sizeof(tmpPrefixBuf), tmpCat.GetPrefix().c_str());
+    tmpSufixBuf[0] = tmpCat.GetSuffix();
     Popup::Init("Edit Category", false);
     Popup::AddCall(HandlePopupNameInput);
     Popup::AddCall(HandlePopupPrefixInput);
-    Popup::AddCall(Popup::Button, "Accept", SaveEditedCategory);
+    Popup::AddCall(HandlePopupSuffixInput);
+    Popup::AddCall(Popup::Button, "Accept", SaveEditedCategory, true);
     Popup::AddCall(Popup::SameLine);
-    Popup::AddCall(Popup::Button, "Cancel", CancelAdd);
+    Popup::AddCall(Popup::Button, "Cancel", CancelAdd, true);
 }
 
 void MakeDeletePopup()
@@ -198,9 +214,9 @@ void MakeDeletePopup()
     Popup::Init("Delete Category", false);
     Popup::AddCall(Popup::TextStylized, "Are you sure you want to delete this category?"
                    "\nThis action cannot be undone", "Bold", true);
-    Popup::AddCall(Popup::Button, "Yes", DeleteCategory);
+    Popup::AddCall(Popup::Button, "Yes", DeleteCategory, true);
     Popup::AddCall(Popup::SameLine);
-    Popup::AddCall(Popup::Button, "No", CancelAdd);
+    Popup::AddCall(Popup::Button, "No", CancelAdd, true);
 }
 
 void HandlePopupNameInput()
@@ -210,19 +226,29 @@ void HandlePopupNameInput()
 
 void HandlePopupPrefixInput()
 {
-    ImGui::InputText("Code", tmpPrefixBuf, sizeof(tmpPrefixBuf), ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::InputText("Code", tmpPrefixBuf, sizeof(tmpPrefixBuf),
+                     ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank);
+}
+
+void HandlePopupSuffixInput()
+{
+    ImGui::InputText("Revision", tmpSufixBuf, sizeof(tmpSufixBuf),
+                     ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::Text("Leave empty for no revision letter");
 }
 
 void SaveNewCategory()
 {
     std::string desc = tmpNameBuf;
     std::string prefix = tmpPrefixBuf;
+    char suffix = tmpSufixBuf[0];
 
     memset(tmpNameBuf, 0, sizeof(tmpNameBuf));
     memset(tmpPrefixBuf, 0, sizeof(tmpPrefixBuf));
+    memset(tmpSufixBuf, 0, sizeof(tmpSufixBuf));
     if (!desc.empty() && !prefix.empty())
     {
-        DB::Category::AddCategory({ desc, prefix });
+        DB::Category::AddCategory({ desc, prefix, suffix });
     }
 }
 
@@ -230,23 +256,26 @@ void CancelAdd()
 {
     memset(tmpNameBuf, 0, sizeof(tmpNameBuf));
     memset(tmpPrefixBuf, 0, sizeof(tmpPrefixBuf));
+    memset(tmpSufixBuf, 0, sizeof(tmpSufixBuf));
 }
 
 void SaveEditedCategory()
 {
     std::string desc = tmpNameBuf;
     std::string prefix = tmpPrefixBuf;
+    char suffix = tmpSufixBuf[0];
 
     memset(tmpNameBuf, 0, sizeof(tmpNameBuf));
     memset(tmpPrefixBuf, 0, sizeof(tmpPrefixBuf));
     if (!desc.empty() && !prefix.empty())
     {
-        if (DB::Category::EditCategory(tmpCat, { desc, prefix }) == false)
+        if (DB::Category::EditCategory(tmpCat, { desc, prefix, tmpSufixBuf[0] }) == false)
         {
             Logging::System.Error("Unable to edit category!");
         }
 
     }
+    memset(tmpSufixBuf, 0, sizeof(tmpSufixBuf));
 }
 
 void DeleteCategory()

@@ -46,6 +46,7 @@ void Logger::Clear(void)
 
 void Logger::AddLog(const char* fmt)
 {
+    m_Open = true;
     m_Buf.emplace_back(fmt);
     if (m_AutoScroll == true)
     {
@@ -233,7 +234,7 @@ void Logging::Critical(const std::string& fmt)
 
 void RenderColoredText(const std::string & msg)
 {
-    std::string line(msg);
+    const std::string& line(msg);
     ImVec4 color(0, 0, 0, 0);
 
     if (line.find("[DEBUG   ]") != std::string::npos)

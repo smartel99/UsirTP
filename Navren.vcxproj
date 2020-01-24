@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\utils\db\Bom.cpp" />
     <ClCompile Include="src\utils\db\Category.cpp" />
     <ClCompile Include="src\utils\db\Item.cpp" />
     <ClCompile Include="src\glErrors.cpp" />
@@ -149,12 +150,14 @@
     <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\widgets\BomViewer.cpp" />
     <ClCompile Include="src\widgets\CategoryViewer.cpp" />
     <ClCompile Include="src\widgets\Logger.cpp" />
     <ClCompile Include="src\widgets\Login.cpp" />
     <ClCompile Include="src\widgets\MainMenu.cpp" />
     <ClCompile Include="src\widgets\Options.cpp" />
     <ClCompile Include="src\widgets\Popup.cpp" />
+    <ClCompile Include="src\widgets\ItemViewer.cpp" />
     <ClCompile Include="src\widgets\Viewer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +247,10 @@
     <ClInclude Include="Dependencies\boost\boost\algorithm\string\trim_all.hpp" />
     <ClInclude Include="Dependencies\boost\boost\algorithm\string\yes_no_type.hpp" />
     <ClInclude Include="Dependencies\boost\boost\algorithm\string_regex.hpp" />
+    <ClInclude Include="src\utils\db\Bom.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\utils\db\Category.h" />
     <ClInclude Include="Dependencies\boost\boost\align.hpp" />
     <ClInclude Include="Dependencies\boost\boost\aligned_storage.hpp" />
@@ -896,6 +903,10 @@
     <ClInclude Include="src\vendor\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\vendor\json\json.hpp" />
+    <ClInclude Include="src\widgets\BomViewer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\widgets\CategoryViewer.h">
       <SubType>
       </SubType>
@@ -908,6 +919,10 @@
     <ClInclude Include="src\widgets\MainMenu.h" />
     <ClInclude Include="src\widgets\Options.h" />
     <ClInclude Include="src\widgets\Popup.h" />
+    <ClInclude Include="src\widgets\ItemViewer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\widgets\Viewer.h">
       <SubType>
       </SubType>

@@ -11,18 +11,18 @@ class Category
 {
 public:
     Category() = default;
-    Category(const std::string& name, const std::string& prefix) :
-        m_name(name), m_idPrefix(prefix)
+    Category(const std::string& name, const std::string& prefix, char suffix = '\0') :
+        m_name(name), m_idPrefix(prefix), m_suffix(suffix)
     {
     }
     ~Category() = default;
 
-    inline const std::string& GetName()
+    inline const std::string& GetName() const
     {
         return m_name;
     }
 
-    inline const std::string& GetPrefix()
+    inline const std::string& GetPrefix() const
     {
         return m_idPrefix;
     }
@@ -34,12 +34,17 @@ public:
 
     bool operator==(const Category& other)
     {
-        return (m_name == other.m_name && m_idPrefix == other.m_idPrefix);
+        return (m_name == other.m_name && m_idPrefix == other.m_idPrefix && m_suffix == other.m_suffix);
     }
 
+    inline const char GetSuffix() const
+    {
+        return m_suffix;
+    }
 private:
-    std::string m_name = "Default Name";
+    std::string m_name = "Default Category";
     std::string m_idPrefix = "DFLT";
+    char m_suffix = '\0';
 };
 
 bool Init(void);

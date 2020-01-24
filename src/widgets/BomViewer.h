@@ -1,25 +1,27 @@
 ﻿/**
  ******************************************************************************
- * @addtogroup misc
+ * @addtogroup BomViewer
  * @{
- * @file    misc
+ * @file    BomViewer
  * @author  Client Microdata
- * @brief   Header for the misc module.
+ * @brief   Header for the BomViewer module.
  *
- * @date 1/17/2020 11:41:21 AM
+ * @date 1/23/2020 12:25:15 PM
  *
  ******************************************************************************
  */
-#ifndef _misc
-#define _misc
+#ifndef _BomViewer
+#define _BomViewer
 
 /*****************************************************************************/
 /* Includes */
 
 
+namespace BomViewer
+{
 /*****************************************************************************/
 /* Exported defines */
-#define MIN(x, y)   (((x)<(y))?(x):(y))
+
 
 /*****************************************************************************/
 /* Exported macro */
@@ -31,10 +33,11 @@
 
 /*****************************************************************************/
 /* Exported functions */
+void Render();
 
-
+}
 /* Have a wonderful day :) */
-#endif /* _misc */
+#endif /* _BomViewer */
 /**
  * @}
  */

@@ -3,6 +3,7 @@
 #include <vector>
 
 #define CHECK_IS_INIT(...)  if(isInit==false){isInit=true;Init();}
+#define IS_INIT     (isInit == true)
 
 namespace DB
 {
@@ -23,10 +24,18 @@ static bool isInit = false;
 bool DB::Category::Init(void)
 {
     categories.clear();
-    for (auto cat : DB::GetAllDocuments("CEP", "Categories"))
+    bsoncxx::stdx::optional<mongocxx::cursor> cats = DB::GetAllDocuments("CEP", "Categories");
+    if (!cats)
+    {
+        isInit = false;
+        return false;
+    }
+
+    for (auto cat : cats.value())
     {
         categories.emplace_back(CreateObject(cat));
     }
+    isInit = true;
     return true;
 }
 
@@ -50,7 +59,10 @@ void Refresh()
 
 bool DB::Category::AddCategory(const Category& category)
 {
-    CHECK_IS_INIT();
+    if (!IS_INIT)
+    {
+        return false;
+    }
 
     categories.emplace_back(category);
 
@@ -62,6 +74,10 @@ bool DB::Category::AddCategory(const Category& category)
 Category DB::Category::GetCategoryByName(const std::string& name)
 {
     Category c = Category("", "");
+    if (!IS_INIT)
+    {
+        return c;
+    }
 
     if (FindInCache(c, name) == false)
     {
@@ -78,6 +94,10 @@ Category DB::Category::GetCategoryByName(const std::string& name)
 Category DB::Category::GetCategoryByPrefix(const std::string& prefix)
 {
     Category c = Category("", "");
+    if (!IS_INIT)
+    {
+        return c;
+    }
 
     if (FindInCache(c, prefix) == false)
     {
@@ -93,14 +113,22 @@ Category DB::Category::GetCategoryByPrefix(const std::string& prefix)
 
 bool EditCategory(const Category& oldCat, const Category& newCat)
 {
+    if (!IS_INIT)
+    {
+        return false;
+    }
     RemoveFromCache(oldCat);
     categories.emplace_back(newCat);
 
-    return (DB::UpdateDocument(CreateDocument(oldCat), CreateDocumentForUpdate(newCat), "CEP", "Categories"));
+    return (DB::UpdateDocument(CreateDocument("prefix", oldCat.GetPrefix()), CreateDocumentForUpdate(newCat), "CEP", "Categories"));
 }
 
 bool DeleteCategory(const Category& category)
 {
+    if (!IS_INIT)
+    {
+        return false;
+    }
     RemoveFromCache(category);
 
     return (DB::DeleteDocument(CreateDocument(category), "CEP", "Categories"));
@@ -117,6 +145,7 @@ bsoncxx::document::value CreateDocument(Category cat)
     bsoncxx::document::value doc = builder
         << "name" << cat.GetName()
         << "prefix" << cat.GetPrefix()
+        << "suffix" << cat.GetSuffix()
         << bsoncxx::builder::stream::finalize;
 
     return doc;
@@ -139,6 +168,7 @@ bsoncxx::document::value CreateDocumentForUpdate(Category cat)
         << "$set" << bsoncxx::builder::stream::open_document
         << "name" << cat.GetName()
         << "prefix" << cat.GetPrefix()
+        << "suffix" << cat.GetSuffix()
         << bsoncxx::builder::stream::close_document
         << bsoncxx::builder::stream::finalize;
 
@@ -149,6 +179,7 @@ Category CreateObject(const bsoncxx::document::view& doc)
 {
     std::string name = "";
     std::string prefix = "";
+    char suffix = '\0';
 
     bsoncxx::document::element el = doc["name"];
     if (el.raw() != nullptr)
@@ -168,7 +199,16 @@ Category CreateObject(const bsoncxx::document::view& doc)
         }
     }
 
-    return Category(name, prefix);
+    el = doc["suffix"];
+    if (el.raw() != nullptr)
+    {
+        if (el.type() == bsoncxx::type::k_int32)
+        {
+            suffix = el.get_int32().value;
+        }
+    }
+
+    return Category(name, prefix, suffix);
 }
 
 bool FindInCache(Category& cat, const std::string& filter)

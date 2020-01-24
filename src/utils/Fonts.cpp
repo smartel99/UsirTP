@@ -50,7 +50,7 @@ void Fonts::Load(int fontSize)
         {
             io.FontDefault = font.GetFont();
             defaultFontName = font.GetName();
-            Logging::System.Debug("Found custom default font!");
+//             Logging::System.Debug("Found custom default font!");
             break;
         }
     }

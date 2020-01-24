@@ -1,8 +1,10 @@
-#include "StringUtils.h"
+﻿#include "StringUtils.h"
 #include "widgets/Logger.h"
 #include <Windows.h>
 #include <time.h>
 #include <stdio.h>
+#include <sstream>
+#include <algorithm>
 
 
 std::string StringUtils::ReplaceAll(const std::string& str,
@@ -12,7 +14,7 @@ std::string StringUtils::ReplaceAll(const std::string& str,
     std::string newStr = str;
 
     std::string::size_type n = 0;
-    while ( (n = newStr.find(toReplace, n)) != std::string::npos )
+    while ((n = newStr.find(toReplace, n)) != std::string::npos)
     {
         newStr.replace(n, toReplace.size(), replaceBy);
         n += replaceBy.size();
@@ -87,4 +89,64 @@ std::string StringUtils::GetCurrentTimeFormated(void)
     strftime(timeStamp, sizeof(timeStamp), "[%x - %X]", &now);
 
     return std::string(timeStamp);
+}
+
+std::string StringUtils::IntToString(const unsigned int& val)
+{
+    std::stringstream ss;
+
+    // The number is converted to string with the help of stringstream.
+    ss << val;
+    std::string ret;
+    ss >> ret;
+//     ret = ret.substr(0, 4); // Only keep 4 chars.
+    // Append zero chars.
+    int strLen = ret.length();
+    for (int i = 0; i < 4 - strLen; i++)
+    {
+        ret = "0" + ret;
+    }
+
+    return ret;
+}
+
+
+bool StringUtils::StringIsValidUrl(const std::string& str)
+{
+    if (str.find_first_of(":/.\\") != std::string::npos)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+template<> int StringUtils::StringToNum<int>(const std::string& val)
+{
+    std::string s = val;
+    // Remove all prefacing characters.
+    s.erase(0, MIN(s.find_first_of("123456789"), s.size() - 1));
+
+    return s.empty() ? 0 : std::atoi(s.c_str());
+}
+
+template<> long StringUtils::StringToNum<long>(const std::string& val)
+{
+    std::string s = val;
+    // Remove all prefacing characters.
+    s.erase(0, MIN(s.find_first_of("123456789"), s.size() - 1));
+
+    return s.empty() ? 0 : std::atol(s.c_str());
+}
+
+template<> unsigned long StringUtils::StringToNum<unsigned long>(const std::string& val)
+{
+    std::string s = val;
+    // Remove all prefacing characters.
+    s.erase(0, MIN(s.find_first_of("123456789"), s.size() - 1));
+
+    char* end;
+    return s.empty() ? 0 : std::strtoul(s.c_str(), &end, 10);
 }

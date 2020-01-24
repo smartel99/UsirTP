@@ -1,4 +1,4 @@
-/**
+﻿/**
  ******************************************************************************
  * @addtogroup StringUtils
  * @{
@@ -16,6 +16,7 @@
 /*****************************************************************************/
 /* Includes */
 #include <iostream>
+#include "utils/misc.h"
 
 namespace StringUtils
 {
@@ -33,18 +34,25 @@ namespace StringUtils
 
 /*****************************************************************************/
 /* Exported functions */
-    std::string  ReplaceAll(const std::string& str,
-                            const std::string& toReplace,
-                            const std::string& replaceBy);
-    std::string GetFullNameFromPath(const std::wstring& path);
-    std::string GetFullNameFromPath(const std::string& path);
-    std::string GetNameFromPath(const std::string& path);
-    std::string RemoveNameFromPath(const std::wstring& path);
-    std::string RemoveNameFromPath(const std::string& path);
-    std::string LongStringToString(const std::wstring& src);
-    std::wstring StringToLongString(const std::string& src);
+std::string  ReplaceAll(const std::string& str,
+                        const std::string& toReplace,
+                        const std::string& replaceBy);
+std::string GetFullNameFromPath(const std::wstring& path);
+std::string GetFullNameFromPath(const std::string& path);
+std::string GetNameFromPath(const std::string& path);
+std::string RemoveNameFromPath(const std::wstring& path);
+std::string RemoveNameFromPath(const std::string& path);
+std::string LongStringToString(const std::wstring& src);
+std::wstring StringToLongString(const std::string& src);
 
-    std::string GetCurrentTimeFormated(void);
+std::string GetCurrentTimeFormated();
+
+std::string IntToString(const unsigned int& val);
+bool StringIsValidUrl(const std::string& str);
+
+template<class T>
+T StringToNum(const std::string& val);
+
 }
 /* Have a wonderful day :) */
 #endif /* _StringUtils */

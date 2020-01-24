@@ -1,25 +1,27 @@
 ﻿/**
  ******************************************************************************
- * @addtogroup misc
+ * @addtogroup Viewer
  * @{
- * @file    misc
- * @author  Client Microdata
- * @brief   Header for the misc module.
+ * @file    Viewer
+ * @author  Samuel Martel
+ * @brief   Header for the Viewer module.
  *
- * @date 1/17/2020 11:41:21 AM
+ * @date 1/20/2020 10:42:32 AM
  *
  ******************************************************************************
  */
-#ifndef _misc
-#define _misc
+#ifndef _ItemViewer
+#define _ItemViewer
 
 /*****************************************************************************/
 /* Includes */
 
 
+namespace ItemViewer
+{
 /*****************************************************************************/
 /* Exported defines */
-#define MIN(x, y)   (((x)<(y))?(x):(y))
+
 
 /*****************************************************************************/
 /* Exported macro */
@@ -31,10 +33,10 @@
 
 /*****************************************************************************/
 /* Exported functions */
-
-
+void Render();
+}
 /* Have a wonderful day :) */
-#endif /* _misc */
+#endif /* _Viewer */
 /**
  * @}
  */
