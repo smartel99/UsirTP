@@ -7,10 +7,23 @@
 #include "vendor/imgui/imgui.h"
 #include "widgets/BomViewer.h"
 #include "widgets/ItemViewer.h"
+#include "widgets/Logger.h"
 
 void Viewer::Init()
 {
-    DB::Init(Config::GetField<std::string>("uri"));
+    // Look for URI in config file. 
+    // If it is found, use it to connect to the database.
+    // Otherwise, use the default parameter of `DB::Init`.
+    auto uri = Config::GetField<std::string>("uri");
+    if (uri.empty())
+    {
+        Logging::System.Error("No URI found in config file, using localhost database.");
+        DB::Init();
+    }
+    else
+    {
+        DB::Init(uri);
+    }
     DB::Category::Init();
     DB::Item::Init();
     DB::BOM::Init();

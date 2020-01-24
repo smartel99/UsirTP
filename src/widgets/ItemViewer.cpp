@@ -721,11 +721,12 @@ void HandlePopupIdInput()
 {
     if (tmpAutoId == true)
     {
-        tmpId = StringUtils::StringToNum<int>(DB::Item::GetNewId(categories[tmpCat]));
+        tmpId = StringUtils::StringToNum<int>(DB::Item::GetNewId(categories.at(tmpCat)));
     }
     char idLabel[50] = { 0 };
-    _itoa_s(tmpId, tmpIdStr, sizeof(tmpIdStr), 10);
-    sprintf_s(idLabel, sizeof(idLabel), "ID Will be: %s", DB::Item::GetNewId(categories[tmpCat], tmpId).c_str());
+    std::string i = DB::Item::GetNewId(categories.at(tmpCat), tmpId);
+    strcpy_s(tmpIdStr, sizeof(tmpIdStr), StringUtils::IntToString(tmpId).c_str());
+    sprintf_s(idLabel, sizeof(idLabel), "ID Will be: %s", i.c_str());
     ImGui::InputText("ID", tmpIdStr, sizeof(tmpIdStr), ImGuiInputTextFlags_CharsDecimal);
     std::string t = tmpIdStr;
     tmpId = StringUtils::StringToNum<int>(t);
@@ -751,7 +752,8 @@ void HandlePopupIdInputDisabled()
     ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
     ImGui::PushStyleColor(ImGuiCol_CheckMark, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
 
-    _itoa_s(tmpId, tmpIdStr, sizeof(tmpIdStr), 10);
+    //     _itoa_s(tmpId, tmpIdStr, sizeof(tmpIdStr), 10);
+    strcpy_s(tmpIdStr, sizeof(tmpIdStr), StringUtils::IntToString(tmpId).c_str());
     DB::Category::Category cat;
     try
     {
@@ -858,7 +860,7 @@ bool VerifyItem(DB::Item::Item& item)
 
     if (id.size() != 8)
     {
-//         isAllGood = false;
+        //         isAllGood = false;
     }
 
     std::string description = tmpDesc;
@@ -870,7 +872,7 @@ bool VerifyItem(DB::Item::Item& item)
     }
     catch (std::out_of_range)
     {
-//         isAllGood = false;
+        //         isAllGood = false;
     }
 
     std::string refLink = tmpRefLink;
@@ -882,7 +884,7 @@ bool VerifyItem(DB::Item::Item& item)
     std::string unit = tmpUnit;
     if (unit.empty())
     {
-//         isAllGood = false;
+        //         isAllGood = false;
     }
 
     auto status = Item::ItemStatus(tmpStatus);

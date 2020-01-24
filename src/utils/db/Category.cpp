@@ -1,5 +1,6 @@
 ﻿#include "Category.h"
 #include "vendor/imgui/imgui.h"
+#include "widgets/Logger.h"
 #include <vector>
 
 #define CHECK_IS_INIT(...)  if(isInit==false){isInit=true;Init();}
@@ -20,9 +21,15 @@ static bool RemoveFromCache(const Category& cat);
 
 static std::vector<Category> categories;
 static bool isInit = false;
+static bool hasError = false;
 
-bool DB::Category::Init(void)
+bool DB::Category::Init()
 {
+    if (hasError)
+    {
+        return false;
+    }
+
     categories.clear();
     bsoncxx::stdx::optional<mongocxx::cursor> cats = DB::GetAllDocuments("CEP", "Categories");
     if (!cats)
@@ -31,12 +38,21 @@ bool DB::Category::Init(void)
         return false;
     }
 
-    for (auto cat : cats.value())
+    try
     {
-        categories.emplace_back(CreateObject(cat));
+        for (auto cat : cats.value())
+        {
+            categories.emplace_back(CreateObject(cat));
+        }
+        isInit = true;
+        return true;
     }
-    isInit = true;
-    return true;
+    catch (const mongocxx::query_exception & e)
+    {
+        Logging::System.Critical("An error occurred when initializing categories: ", e.what());
+        hasError = true;
+        return false;
+    }
 }
 
 void Refresh()

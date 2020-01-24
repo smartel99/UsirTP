@@ -2,6 +2,7 @@
 #include "vendor/imgui/imgui.h"
 #include "utils/StringUtils.h"
 #include "boost/algorithm/string.hpp"
+#include "widgets/Logger.h"
 
 using namespace DB::BOM;
 
@@ -14,6 +15,7 @@ static bool RemoveFromCache(const BOM& bom);
 
 static std::vector<BOM> boms;
 static bool isInit = false;
+static bool hasError = false;
 
 const DB::Item::Item DB::BOM::BOM::GetOutput() const
 {
@@ -34,6 +36,11 @@ const std::vector<DB::Item::Item> DB::BOM::BOM::GetItems() const
 
 bool DB::BOM::Init()
 {
+    if (hasError)
+    {
+        return false;
+    }
+
     boms.clear();
     bsoncxx::stdx::optional<mongocxx::cursor> bs = DB::GetAllDocuments("CEP", "BOMs");
     if (!bs)
@@ -42,13 +49,22 @@ bool DB::BOM::Init()
         return false;
     }
 
-    for (auto b : bs.value())
+    try
     {
-        boms.emplace_back(CreateObject(b));
-    }
+        for (auto b : bs.value())
+        {
+            boms.emplace_back(CreateObject(b));
+        }
 
-    isInit = true;
-    return true;
+        isInit = true;
+        return true;
+    }
+    catch (const mongocxx::query_exception & e)
+    {
+        Logging::System.Critical("An error occurred when initializing BOMs: ", e.what());
+        hasError = true;
+        return false;
+    }
 }
 
 void DB::BOM::Refresh()
@@ -131,7 +147,6 @@ std::string DB::BOM::GetNewId()
 
 bsoncxx::document::value CreateDocument(BOM bom)
 {
-
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
     bsoncxx::builder::basic::document builder = bsoncxx::builder::basic::document{};

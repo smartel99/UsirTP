@@ -36,47 +36,48 @@ namespace Config
 
 /*****************************************************************************/
 /* Exported variables */
-    namespace DO_NOT_USE
-    {
-        extern json config;
-        extern bool isConfigLoaded;
-    }
+namespace DO_NOT_USE
+{
+extern json config;
+extern bool isConfigLoaded;
+}
 
 /*****************************************************************************/
 /* Exported functions */
-    void Load(void);
-    void Save(void);
+void Load(void);
+void Save(void);
 
-    json GetConfig(void);
+json GetConfig(void);
 
-    template<class T>
-    void SetField(const std::string& key, T val)
+template<class T>
+void SetField(const std::string& key, T val)
+{
+    if (DO_NOT_USE::isConfigLoaded == false)
     {
-        if ( DO_NOT_USE::isConfigLoaded == false )
-        {
-            Load();
-        }
-        DO_NOT_USE::config[key] = val;
-        Save();
+        Load();
     }
+    DO_NOT_USE::config[key] = val;
+    Save();
+}
 
-    template<class T>
-    T GetField(const std::string& key)
+template<class T>
+T GetField(const std::string& key)
+{
+    if (DO_NOT_USE::isConfigLoaded == false)
     {
-        if ( DO_NOT_USE::isConfigLoaded == false )
-        {
-            Load();
-        }
-        try
-        {
-            return DO_NOT_USE::config[key];
-        }
-        catch ( json::exception )
-        {
-            // Requested item doesn't exist.
-            throw std::invalid_argument("Field Not Found!");
-        }
+        Load();
     }
+    try
+    {
+        return DO_NOT_USE::config[key];
+    }
+    catch (json::exception)
+    {
+        // Requested item doesn't exist.
+        //throw std::invalid_argument("Field Not Found!");
+        return T();
+    }
+}
 } // Namespace Config.
 /* Have a wonderful day :) */
 #endif /* _Config */

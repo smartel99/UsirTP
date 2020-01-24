@@ -4,7 +4,7 @@
 #include <vector>
 
 #define CLIENT client->GetClient()
-#define CLIENT_IS_VALID (client != nullptr)
+#define CLIENT_IS_VALID ((client != nullptr) && hasError == false)
 static mongocxx::instance instance;
 
 class Client
@@ -19,7 +19,7 @@ public:
         m_client.~client();
     }
 
-    inline mongocxx::client& GetClient(void)
+    inline mongocxx::client& GetClient()
     {
         return m_client;
     }
@@ -30,6 +30,7 @@ private:
 
 static Client* client;
 static bool isInit = false;
+static bool hasError = false;
 
 bool DB::Init(const std::string& host, const mongocxx::options::client& options)
 {
@@ -40,6 +41,7 @@ bool DB::Init(const std::string& host, const mongocxx::options::client& options)
     catch (const mongocxx::logic_error & e)
     {
         Logging::System.Error("An Error Occurred When Logging In: ", e.what());
+        hasError = false;
     }
     if (isInit == true)
     {
@@ -51,7 +53,7 @@ bool DB::Init(const std::string& host, const mongocxx::options::client& options)
     return true;
 }
 
-std::string DB::GetCurrentClientHostName(void)
+std::string DB::GetCurrentClientHostName()
 {
     return CLIENT.uri().to_string();
 }
@@ -85,6 +87,17 @@ bsoncxx::stdx::optional<mongocxx::cursor> DB::GetAllDocuments(std::string db,
     if (CLIENT_IS_VALID)
     {
         mongocxx::cursor cursor = CLIENT.database(db).collection(col).find(filter.view());
+        try
+        {
+            auto v = cursor.begin();
+        }
+        catch (const mongocxx::query_exception & e)
+        {
+            Logging::System.Critical("An error occurred when getting all documents from collection \""
+                                     + col + "\"of database \"" + db + "\"\n\t", e.what());
+            hasError = true;
+            return {};
+        }
         return cursor;
     }
     else

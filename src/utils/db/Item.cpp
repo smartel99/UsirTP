@@ -2,6 +2,7 @@
 #include "boost/algorithm/string.hpp"
 #include "utils/StringUtils.h"
 #include "vendor/imgui/imgui.h"
+#include "widgets/Logger.h"
 #include <vector>
 #include <stdexcept>
 
@@ -22,10 +23,16 @@ static bool RemoveFromCache(const Item& it);
 
 static std::vector<Item> items;
 static bool isInit = false;
+static bool hasError = false;
 
 
-bool DB::Item::Init(void)
+bool DB::Item::Init()
 {
+    if (hasError)
+    {
+        return false;
+    }
+
     items.clear();
     bsoncxx::stdx::optional<mongocxx::cursor> its = DB::GetAllDocuments("CEP", "Items");
     if (!its)
@@ -34,13 +41,22 @@ bool DB::Item::Init(void)
         return false;
     }
 
-    for (auto it : its.value())
+    try
     {
-        items.emplace_back(CreateObject(it));
-    }
+        for (auto it : its.value())
+        {
+            items.emplace_back(CreateObject(it));
+        }
 
-    isInit = true;
-    return true;
+        isInit = true;
+        return true;
+    }
+    catch (const mongocxx::query_exception & e)
+    {
+        Logging::System.Critical("An error occurred when initializing Items: ", e.what());
+        hasError = true;
+        return false;
+    }
 }
 
 void DB::Item::Refresh()
@@ -71,8 +87,12 @@ bool DB::Item::AddItem(const Item& it)
     items.emplace_back(it);
 
     bsoncxx::document::value itDoc = CreateDocument(it);
+    bool r = DB::InsertDocument(itDoc, "CEP", "Items");
 
-    return DB::InsertDocument(itDoc, "CEP", "Items");
+    // Refresh Cache.
+    Init();
+
+    return r;
 }
 
 Item DB::Item::GetItemByName(const std::string& name)
@@ -132,6 +152,10 @@ bool DB::Item::EditItem(Item& oldItem, const Item& newItem)
     items.emplace_back(newItem);
     bool r = (DB::UpdateDocument(CreateDocument("id", oldItem.GetId()), CreateDocumentForUpdate(newItem), "CEP", "Items"));
     RemoveFromCache(oldItem);
+
+    // Refresh Cache.
+    Init();
+
     return r;
 }
 
@@ -143,8 +167,12 @@ bool DB::Item::DeleteItem(Item& item)
     }
 
     RemoveFromCache(item);
+    bool r = (DB::DeleteDocument(CreateDocument("id", item.GetId()), "CEP", "Items"));
 
-    return (DB::DeleteDocument(CreateDocument("id", item.GetId()), "CEP", "Items"));
+    // Refresh Cache.
+    Init();
+
+    return r;
 }
 
 const std::vector<Item>& DB::Item::GetAll()
@@ -154,25 +182,29 @@ const std::vector<Item>& DB::Item::GetAll()
 
 bsoncxx::document::value CreateDocument(Item it)
 {
-    auto builder = bsoncxx::builder::stream::document{};
-    bsoncxx::document::value doc = builder
-        << "_id" << bsoncxx::oid(it.GetOid())
-        << "id" << it.GetId()
-        << "description" << it.GetDescription()
-        << "category" << bsoncxx::builder::stream::open_document
-        << "name" << it.GetCategory().GetName()
-        << "prefix" << it.GetCategory().GetPrefix()
-        << "suffix" << it.GetCategory().GetSuffix()
-        << bsoncxx::builder::stream::close_document
-        << "referenceLink" << it.GetReferenceLink()
-        << "location" << it.GetLocation()
-        << "price" << float(it.GetPrice())
-        << "quantity" << it.GetQuantity()
-        << "unit" << it.GetUnit()
-        << "status" << it.GetStatus()
-        << bsoncxx::builder::stream::finalize;
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+    bsoncxx::builder::basic::document builder = bsoncxx::builder::basic::document{};
 
-    return doc;
+    builder.append(kvp("id", it.GetId()));
+    builder.append(kvp("description", it.GetDescription()));
+    builder.append(kvp("category", make_document(
+        kvp("name", it.GetCategory().GetName()),
+        kvp("prefix", it.GetCategory().GetPrefix()),
+        kvp("suffix", it.GetCategory().GetSuffix()))));
+    builder.append(kvp("referenceLink", it.GetReferenceLink()));
+    builder.append(kvp("location", it.GetLocation()));
+    builder.append(kvp("price", it.GetPrice()));
+    builder.append(kvp("quantity", it.GetQuantity()));
+    builder.append(kvp("unit", it.GetUnit()));
+    builder.append(kvp("status", it.GetStatus()));
+
+    if (!it.GetOid().empty() && it.GetOid() != "N/A")
+    {
+        builder.append(kvp("_id", bsoncxx::oid(it.GetOid())));
+    }
+
+    return builder.extract();
 }
 
 bsoncxx::document::value CreateDocument(const std::string& field, const std::string& val)
@@ -189,7 +221,6 @@ bsoncxx::document::value CreateDocumentForUpdate(Item it)
     auto builder = bsoncxx::builder::stream::document{};
     bsoncxx::document::value doc = builder
         << "$set" << bsoncxx::builder::stream::open_document
-        << "_id" << bsoncxx::oid(it.GetOid())
         << "id" << it.GetId()
         << "description" << it.GetDescription()
         << "category.name" << it.GetCategory().GetName()

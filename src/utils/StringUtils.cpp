@@ -99,7 +99,7 @@ std::string StringUtils::IntToString(const unsigned int& val)
     ss << val;
     std::string ret;
     ss >> ret;
-//     ret = ret.substr(0, 4); // Only keep 4 chars.
+    ret = ret.substr(0, 4); // Only keep 4 chars.
     // Append zero chars.
     int strLen = ret.length();
     for (int i = 0; i < 4 - strLen; i++)
