@@ -3,15 +3,19 @@
 #include "utils/db/MongoCore.h"
 #include "utils/db/Category.h"
 #include "utils/db/Item.h"
+#include "utils/Document.h"
 #include "utils/Config.h"
+#include "utils/FilterUtils.h"
 #include "utils/StringUtils.h"
 #include "vendor/imgui/imgui.h"
 #include "widgets/Popup.h"
+#include "widgets/Logger.h"
+
+#include <fstream>
 #include <Windows.h>
 #include <vector>
 #include <algorithm>
 
-#define MAX_INPUT_LENGHT 400
 #define SORT_ASCEND     "(A to Z)"
 #define SORT_DESCEND    "(Z to A)"
 #define SORT_TXT(x)     (sortby == SortBy::x ? SORT_ASCEND : (sortby == SortBy::r ## x ? SORT_DESCEND : " "))
@@ -41,6 +45,8 @@ enum class SortBy
 
 
 static void SortItems(SortBy sortby, std::vector<DB::Item::Item>& items);
+static void RenderFilterBar();
+static bool CheckDoesItemMatchFilter(const DB::Item::Item& item);
 static void MakeNewPopup();
 static void MakeEditPopup(bool isRetry = false);
 static void MakeDeletePopup();
@@ -60,8 +66,10 @@ static void HandlePopupQuantityInput();
 static void HandlePopupUnitInput();
 static void HandlePopupStatusInput();
 
-static int GetCategoryNumber(DB::Category::Category& cat);
+static int GetCategoryNumber(const DB::Category::Category& cat);
 static bool VerifyItem(DB::Item::Item& item);
+static void ExportItems();
+static void OpenOutputFile();
 
 static DB::Item::Item tmpItem;
 static std::vector<DB::Category::Category> categories;
@@ -76,6 +84,18 @@ static float tmpPrice = 0.00f;
 static float tmpQty = 0.0f;
 static char tmpUnit[MAX_INPUT_LENGHT] = { 0 };
 static int tmpStatus = 0;
+static std::wstring tmpOutputFilePath = L"";
+
+const static std::vector<std::string> cats = { "ID",
+                                               "Description",
+                                               "Category",
+                                               "Reference",
+                                               "Location",
+                                               "Price",
+                                               "Quantity",
+                                               "Unit",
+                                               "Status" };
+static FilterUtils::FilterHandler filter(cats);
 
 void ItemViewer::Render()
 {
@@ -83,6 +103,11 @@ void ItemViewer::Render()
     static bool isDeleteOpen = false;
 
     DB::Item::Refresh();
+
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.39f, 0.39f, 0.39f, 0.5859375f));
+    ImGui::Columns(3, nullptr, false);
+    const static float w1 = ImGui::GetColumnWidth(-1) * 0.75f;
+    ImGui::SetColumnWidth(-1, w1);
 
 #pragma region Control Buttons
     // Only show buttons if user has admin rights.
@@ -107,7 +132,23 @@ void ItemViewer::Render()
     }
 #pragma endregion
 
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.39f, 0.39f, 0.39f, 0.5859375f));
+    ImGui::NextColumn();
+
+#pragma region Search bar/filters
+    const static float w2 = ImGui::GetColumnWidth(-1) * 1.5f;
+    ImGui::SetColumnWidth(-1, w2);
+    filter.Render();
+    ImGui::NextColumn();
+
+    if (ImGui::Button("Export"))
+    {
+        ExportItems();
+    }
+
+    ImGui::NextColumn();
+    ImGui::Columns(1);
+#pragma endregion Search bar/filters
+
     ImGui::BeginChildFrame(ImGui::GetID("ViewerChildFrame"), ImVec2());
     ImGui::PopStyleColor();
 
@@ -275,6 +316,10 @@ void ItemViewer::Render()
 #pragma region Content
     for (auto& item : items)
     {
+        if (filter.CheckMatch(item) == false)
+        {
+            continue;
+        }
         ImGui::Separator();
         if (isEditOpen == true)
         {
@@ -325,10 +370,11 @@ void ItemViewer::Render()
         ImGui::Text(item.GetLocation().c_str());
         ImGui::NextColumn();
 
-        ImGui::Text("%0.2f $CDN", item.GetPrice());
+        ImGui::Text("%0.3f $CDN", item.GetPrice());
         ImGui::NextColumn();
 
-        if (DB::HasUserWritePrivileges())
+        /** @todo Should all user be able to change quantities? */
+//         if (DB::HasUserWritePrivileges())
         {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
             ImGui::BeginChildFrame(ImGui::GetID(std::string("Qty" + item.GetId()).c_str()),
@@ -339,7 +385,15 @@ void ItemViewer::Render()
             ImGui::NextColumn();
             if (ImGui::SmallButton("Set"))
             {
-                ImGui::OpenPopup(std::string("QtySet##" + item.GetId()).c_str());
+                if (DB::HasUserWritePrivileges() == false)
+                {
+                    Popup::Init("Unauthorized");
+                    Popup::AddCall(Popup::TextStylized, "You must be logged in to do this action", "Bold/4278190335", true);
+                }
+                else
+                {
+                    ImGui::OpenPopup(std::string("QtySet##" + item.GetId()).c_str());
+                }
             }
             ImGui::NextColumn();
             ImGui::Columns(1);
@@ -581,6 +635,16 @@ void SortItems(SortBy sortby, std::vector<DB::Item::Item>& items)
     }
 }
 
+void RenderFilterBar()
+{
+
+}
+
+bool CheckDoesItemMatchFilter(const DB::Item::Item& item)
+{
+    return false;
+}
+
 void MakeNewPopup()
 {
     categories = DB::Category::GetAll();
@@ -725,7 +789,7 @@ void HandlePopupIdInput()
     }
     char idLabel[50] = { 0 };
     std::string i = DB::Item::GetNewId(categories.at(tmpCat), tmpId);
-    strcpy_s(tmpIdStr, sizeof(tmpIdStr), StringUtils::IntToString(tmpId).c_str());
+    strcpy_s(tmpIdStr, sizeof(tmpIdStr), StringUtils::NumToString(unsigned int(tmpId)).c_str());
     sprintf_s(idLabel, sizeof(idLabel), "ID Will be: %s", i.c_str());
     ImGui::InputText("ID", tmpIdStr, sizeof(tmpIdStr), ImGuiInputTextFlags_CharsDecimal);
     std::string t = tmpIdStr;
@@ -753,7 +817,7 @@ void HandlePopupIdInputDisabled()
     ImGui::PushStyleColor(ImGuiCol_CheckMark, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
 
     //     _itoa_s(tmpId, tmpIdStr, sizeof(tmpIdStr), 10);
-    strcpy_s(tmpIdStr, sizeof(tmpIdStr), StringUtils::IntToString(tmpId).c_str());
+    strcpy_s(tmpIdStr, sizeof(tmpIdStr), StringUtils::NumToString(unsigned int(tmpId)).c_str());
     DB::Category::Category cat;
     try
     {
@@ -838,7 +902,7 @@ void HandlePopupStatusInput()
     ImGui::Combo("Status", &tmpStatus, statuses.data(), statuses.size());
 }
 
-int GetCategoryNumber(DB::Category::Category& cat)
+int GetCategoryNumber(const DB::Category::Category& cat)
 {
     int i = 0;
     for (auto& c : categories)
@@ -892,4 +956,67 @@ bool VerifyItem(DB::Item::Item& item)
     item = Item::Item("", id, description, category, refLink, location, price, qty, unit, status);
 
     return isAllGood;
+}
+
+void ExportItems()
+{
+    // Form a list of all desired items.
+    std::vector<DB::Item::Item> items = DB::Item::GetAll();
+    for (auto item = items.begin(); item != items.end();)
+    {
+        // We don't `item++` in the loop because it is virtually done by `items.erase`.
+        if (filter.CheckMatch(*item) == false)
+        {
+            items.erase(item);
+        }
+        else
+        {
+            // We want to increment here because the item wasn't removed from the list.
+            item++;
+        }
+    }
+
+    // Make the user select the desired output file.
+    tmpOutputFilePath = L"";
+    File::SaveFile(tmpOutputFilePath, INDEX_CSV, L"*.csv");
+
+    std::ofstream outputFile;
+    outputFile.open(tmpOutputFilePath);
+
+    if (outputFile.is_open() == false)
+    {
+        Logging::System.Error("An error occurred when opening the output file.");
+        return;
+    }
+
+    // Write the headers.
+    outputFile << "Id,Description,Category,Reference Link,Location,Price,Quantity,Unit,Status" << std::endl;
+
+    // Write the items.
+    for (auto& item : items)
+    {
+        outputFile << item.GetId() << ","
+            << "\"" << item.GetDescription() << "\","
+            << item.GetCategory().GetName() << ","
+            << item.GetReferenceLink() << ","
+            << item.GetLocation() << ","
+            << item.GetPrice() << ","
+            << item.GetQuantity() << ","
+            << item.GetUnit() << ","
+            << item.GetStatusAsString() << std::endl;
+    }
+
+    outputFile.close();
+
+    Popup::Init("File Generated");
+    Popup::AddCall(Popup::TextCentered, "Do you want to open it?");
+    Popup::AddCall(Popup::Button, "Yes", OpenOutputFile, true);
+    Popup::AddCall(Popup::SameLine);
+    Popup::AddCall(Popup::Button, "No", []()
+                   {}, true);
+}
+
+void OpenOutputFile()
+{
+    ShellExecute(nullptr, nullptr, StringUtils::LongStringToString(tmpOutputFilePath).c_str(), nullptr, nullptr, SW_SHOW);
 }

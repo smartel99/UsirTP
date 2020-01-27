@@ -14,14 +14,9 @@
  /* Includes */
 #include "Application.h"
 #include <iostream>
-#include <sstream>
-
-#include "utils/db/MongoCore.h"
-#include "utils/db/Category.h"
 
 /* Private defines */
 
-using bsoncxx::builder::stream::document;
 /* Private variable declarations */
 
 
@@ -36,7 +31,6 @@ int main(int argc, char** argv)
         std::cout << "Unable to initialize application" << std::endl;
         return -1;
     }
-
 
     app.Run();
 

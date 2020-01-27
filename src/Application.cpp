@@ -30,7 +30,7 @@ Application::Application(void)
 
     /* Create a windowed mode window and its OpenGl context */
     m_window = glfwCreateWindow(int(m_width), int(m_heigth),
-                                "Navren Test-Bench Script Interpreter", nullptr, nullptr);
+                                "Usir The Powerful Inventory Management", nullptr, nullptr);
     if (m_window == nullptr)
     {
         /* Unable to create window */
@@ -79,7 +79,12 @@ Application::Application(void)
     Fonts::Load(fontSize);
 
     /* --------------  Initialize widgets  -------------- */
+    // Viewer
+    Viewer::Init();
+    AddWidget(Viewer::Render);
+
     // Logger
+    Logging::Init();
     AddWidget(Logging::Draw);
 
     // Options
@@ -88,10 +93,6 @@ Application::Application(void)
 
     // Popup
     AddWidget(Popup::Render);
-
-    // Viewer
-    Viewer::Init();
-    AddWidget(Viewer::Render);
 
     // Category Viewer
     AddWidget(CategoryViewer::Render);
@@ -118,7 +119,7 @@ void Application::AddWidget(std::function<void()> widgetFunction)
     m_widgets.push_back(widgetFunction);
 }
 
-void Application::Run(void)
+void Application::Run()
 {
     while (!glfwWindowShouldClose(m_window))
     {
@@ -134,7 +135,7 @@ void Application::Run(void)
         ImGui::SetNextWindowSize(ImVec2(m_width, m_heigth), ImGuiCond_Once);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
-        ImGui::Begin("Main Menu", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::Begin("Main Menu", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollWithMouse);
         ImGui::PopStyleVar();
 
 //         ImGui::ShowMetricsWindow();

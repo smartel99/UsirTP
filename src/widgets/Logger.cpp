@@ -1,6 +1,7 @@
 ﻿#include "Logger.h"
 #include "Application.h"
 #include "utils/Config.h"
+#include "utils/db/MongoCore.h"
 #include "utils/Fonts.h"
 #include "widgets/MainMenu.h"
 #include <iostream>
@@ -9,14 +10,15 @@
 
 Logger logger;
 
-static Logging::LogLevelEnum_t logLevel = Logging::LOG_LEVEL_DEBUG;
+static Logging::LogLevelEnum_t logLevel = Logging::LogLevelEnum_t::LOG_LEVEL_DEBUG;
 static bool isReadyToGoDownToFlavortown = false;
 static int hitCount = 0;
 static double timeElapsed = 0;
 
 static void RenderColoredText(const std::string& msg);
+static void SaveToDB(const std::string& msg);
 
-Logger::Logger(void)
+Logger::Logger()
 {
     m_AutoScroll = true;
     m_ScrollToBottom = false;
@@ -30,6 +32,7 @@ Logger::Logger(void)
         logLevel = Logging::DEFAULT_LOG_LEVEL;
         Config::SetField("LogLevel", logLevel);
     }
+
     Clear();
 }
 
@@ -37,7 +40,7 @@ Logger::Logger(void)
 Logger::~Logger(void)
 = default;
 
-void Logger::Clear(void)
+void Logger::Clear()
 {
     m_Buf.clear();
     m_LineOffsets.clear();
@@ -46,7 +49,6 @@ void Logger::Clear(void)
 
 void Logger::AddLog(const char* fmt)
 {
-    m_Open = true;
     m_Buf.emplace_back(fmt);
     if (m_AutoScroll == true)
     {
@@ -138,7 +140,27 @@ void Logger::Draw(const char* title)
     ImGui::End();
 }
 
-void Logging::Clear(void)
+void Logging::Init()
+{
+    bsoncxx::stdx::optional<mongocxx::cursor> entries = DB::GetAllDocuments("CEP", "AuditLog");
+    if (entries)
+    {
+        for (auto& e : entries.value())
+        {
+            bsoncxx::document::element el = e["entry"];
+            if (el.raw() != nullptr)
+            {
+                if (el.type() == bsoncxx::type::k_utf8)
+                {
+                    logger.AddLog(el.get_utf8().value.data());
+                    logger.Close();
+                }
+            }
+        }
+    }
+}
+
+void Logging::Clear()
 {
     static int frameCount = 0;
     static double deltaTime = ImGui::GetIO().DeltaTime;
@@ -159,12 +181,12 @@ void Logging::Clear(void)
     logger.Clear();
 }
 
-void Logging::Draw(void)
+void Logging::Draw()
 {
     logger.Draw("Logger");
 }
 
-void Logging::OpenConsole(void)
+void Logging::OpenConsole()
 {
     logger.Open();
 }
@@ -177,56 +199,82 @@ void Logging::SetLogLevel(LogLevelEnum_t level)
 namespace Logging
 {
 LogSource System("[SYSTEM     ]");
-LogSource TestBench("[TEST_BENCH ]");
-LogSource Interpreter("[INTERPRETER]");
+LogSource Audit("[AUDIT      ]");
 
-void Logging::Debug(const std::string& fmt)
+void Logging::Debug(const std::string& fmt, bool save)
 {
-    if (logLevel > LOG_LEVEL_DEBUG)
+    if (logLevel > LogLevelEnum_t::LOG_LEVEL_DEBUG)
     {
         return;
+    }
+
+    if (save == true)
+    {
+        SaveToDB(fmt);
     }
 
     logger.AddLog(fmt.c_str());
 }
 
-void Logging::Info(const std::string& fmt)
+void Logging::Info(const std::string& fmt, bool save)
 {
-    if (logLevel > LOG_LEVEL_INFO)
+    if (logLevel > LogLevelEnum_t::LOG_LEVEL_INFO)
     {
         return;
+    }
+
+    if (save == true)
+    {
+        SaveToDB(fmt);
     }
 
     logger.AddLog(fmt.c_str());
 }
 
-void Logging::Warning(const std::string& fmt)
+void Logging::Warning(const std::string& fmt, bool save)
 {
-    if (logLevel > LOG_LEVEL_WARNING)
+    if (logLevel > LogLevelEnum_t::LOG_LEVEL_WARNING)
     {
         return;
+    }
+
+    if (save == true)
+    {
+        SaveToDB(fmt);
     }
 
     logger.AddLog(fmt.c_str());
 }
 
-void Logging::Error(const std::string& fmt)
+void Logging::Error(const std::string& fmt, bool save)
 {
-    if (logLevel > LOG_LEVEL_ERROR)
+    if (logLevel > LogLevelEnum_t::LOG_LEVEL_ERROR)
     {
         return;
     }
 
+    if (save == true)
+    {
+        SaveToDB(fmt);
+    }
+
+    logger.Open();
     logger.AddLog(fmt.c_str());
 }
 
-void Logging::Critical(const std::string& fmt)
+void Logging::Critical(const std::string& fmt, bool save)
 {
-    if (logLevel > LOG_LEVEL_CRITICAL)
+    if (logLevel > LogLevelEnum_t::LOG_LEVEL_CRITICAL)
     {
         return;
     }
 
+    if (save == true)
+    {
+        SaveToDB(fmt);
+    }
+
+    logger.Open();
     logger.AddLog(fmt.c_str());
 }
 
@@ -273,4 +321,15 @@ void RenderColoredText(const std::string & msg)
     ImGui::PushStyleColor(ImGuiCol_Text, color);
     ImGui::TextUnformatted(line.c_str());
     ImGui::PopStyleColor();
+}
+
+void SaveToDB(const std::string & msg)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    auto builder = bsoncxx::builder::basic::document{};
+    builder.append(kvp("entry", msg));
+
+    DB::InsertDocument(builder.extract(), "CEP", "AuditLog");
 }

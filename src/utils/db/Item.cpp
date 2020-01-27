@@ -20,6 +20,7 @@ static Item CreateObject(const bsoncxx::document::view& doc);
 static bool FindInCache(Item& it, const std::string& filter);
 static bool FindInCache(Item& it);
 static bool RemoveFromCache(const Item& it);
+static std::string FindDiffs(const Item& from, const Item& to);
 
 static std::vector<Item> items;
 static bool isInit = false;
@@ -89,6 +90,7 @@ bool DB::Item::AddItem(const Item& it)
     bsoncxx::document::value itDoc = CreateDocument(it);
     bool r = DB::InsertDocument(itDoc, "CEP", "Items");
 
+    Logging::Audit.Info("Created Item \"" + it.GetId(), "\"", true);
     // Refresh Cache.
     Init();
 
@@ -113,14 +115,14 @@ Item DB::Item::GetItemByID(const std::string& prefix)
     return (CreateObject(DB::GetDocument("CEP", "Items", CreateDocument("id", prefix))));
 }
 
-std::string DB::Item::GetNewId(DB::Category::Category cat, int id)
+std::string DB::Item::GetNewId(const DB::Category::Category& cat, int id)
 {
     if (!IS_INIT)
     {
         return "";
     }
 
-    int max = -1;
+    int max = 0;
     for (auto& item : items)
     {
         if (item.GetCategory() == cat)
@@ -132,8 +134,9 @@ std::string DB::Item::GetNewId(DB::Category::Category cat, int id)
         }
     }
 
+    // First ID will be 0001, not 0, this is desired.
     max = id == -1 ? max + 1 : id;
-    std::string ret = cat.GetPrefix() + StringUtils::IntToString(max);
+    std::string ret = cat.GetPrefix() + StringUtils::NumToString(max);
     if (cat.GetSuffix() != '\0')
     {
         ret += cat.GetSuffix();
@@ -142,7 +145,7 @@ std::string DB::Item::GetNewId(DB::Category::Category cat, int id)
     return  ret;
 }
 
-bool DB::Item::EditItem(Item& oldItem, const Item& newItem)
+bool DB::Item::EditItem(const Item& oldItem, const Item& newItem)
 {
     if (!IS_INIT)
     {
@@ -150,8 +153,11 @@ bool DB::Item::EditItem(Item& oldItem, const Item& newItem)
     }
 
     items.emplace_back(newItem);
-    bool r = (DB::UpdateDocument(CreateDocument("id", oldItem.GetId()), CreateDocumentForUpdate(newItem), "CEP", "Items"));
     RemoveFromCache(oldItem);
+    bool r = (DB::UpdateDocument(CreateDocument("id", oldItem.GetId()),
+                                 CreateDocumentForUpdate(newItem), "CEP", "Items"));
+
+    Logging::Audit.Info("Edited Item ", oldItem.GetId() + FindDiffs(oldItem, newItem), true);
 
     // Refresh Cache.
     Init();
@@ -168,6 +174,7 @@ bool DB::Item::DeleteItem(Item& item)
 
     RemoveFromCache(item);
     bool r = (DB::DeleteDocument(CreateDocument("id", item.GetId()), "CEP", "Items"));
+    Logging::Audit.Info("Deleted Item \"" + item.GetId(), "\"", true);
 
     // Refresh Cache.
     Init();
@@ -397,6 +404,53 @@ bool RemoveFromCache(const Item& it)
         }
     }
     return false;
+}
+
+std::string FindDiffs(const Item& from, const Item& to)
+{
+    std::string difs = "";
+
+    if (from.GetId() != to.GetId())
+    {
+        difs += "\n\r\tID:\n\r\t\tFrom: " + from.GetId() + "\n\r\t\tTo: " + to.GetId();
+    }
+    if (from.GetDescription() != to.GetDescription())
+    {
+        difs += "\n\r\tDescription:\n\r\t\tFrom: " + from.GetDescription() + "\n\r\t\tTo: " + to.GetDescription();
+    }
+    if (from.GetCategory() != to.GetCategory())
+    {
+        difs += "\n\r\tCategory:\n\r\t\tFrom: " + from.GetCategory().GetName() +
+            "\n\r\t\tTo: " + to.GetCategory().GetName();
+    }
+    if (from.GetReferenceLink() != to.GetReferenceLink())
+    {
+        difs += "\n\r\tReference Link:\n\r\t\tFrom: " + from.GetReferenceLink() + "\n\r\t\tTo: " + to.GetReferenceLink();
+    }
+    if (from.GetLocation() != to.GetLocation())
+    {
+        difs += "\n\r\tLocation:\n\r\t\tFrom: " + from.GetLocation() + "\n\r\t\tTo: " + to.GetLocation();
+    }
+    if (from.GetPrice() != to.GetPrice())
+    {
+        difs += "\n\r\tPrice:\n\r\t\tFrom: " + StringUtils::NumToString(from.GetPrice()) +
+            "\n\r\t\tTo: " + StringUtils::NumToString(to.GetPrice());
+    }
+    if (from.GetQuantity() != to.GetQuantity())
+    {
+        difs += "\n\r\tQuantity:\n\r\t\tFrom: " + StringUtils::NumToString(from.GetQuantity()) +
+            "\n\r\t\tTo: " + StringUtils::NumToString(to.GetQuantity());
+    }
+    if (from.GetUnit() != to.GetUnit())
+    {
+        difs += "\n\r\tUnit:\n\r\t\tFrom: " + from.GetUnit() + "\n\r\t\tTo: " + to.GetUnit();
+    }
+    if (from.GetStatus() != from.GetStatus())
+    {
+        difs += "\n\r\tStatus:\n\r\t\tFrom: " + from.GetStatusAsString() + "\n\r\t\tTo: " + to.GetStatusAsString();
+    }
+
+    return difs;
 }
 
 }

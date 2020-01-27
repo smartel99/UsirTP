@@ -41,7 +41,7 @@ bool DB::Init(const std::string& host, const mongocxx::options::client& options)
     catch (const mongocxx::logic_error & e)
     {
         Logging::System.Error("An Error Occurred When Logging In: ", e.what());
-        hasError = false;
+        hasError = true;
     }
     if (isInit == true)
     {
@@ -67,16 +67,26 @@ bsoncxx::document::view DB::GetDocument(const std::string& db,
         return bsoncxx::document::value({});
     }
 
-    bsoncxx::stdx::optional<bsoncxx::document::value> result =
-        CLIENT.database(db).collection(col).find_one(filter.view());
-    if (result)     // If the document was found:
+    try
     {
-        // It won't be nothing, like literally nothing.
-        return result.value().view();
+        bsoncxx::stdx::optional<bsoncxx::document::value> result =
+            CLIENT.database(db).collection(col).find_one(filter.view());
+        if (result)     // If the document was found:
+        {
+            // It won't be nothing, like literally nothing.
+            return result.value().view();
+        }
+        else
+        {
+            return bsoncxx::document::view({});
+        }
     }
-    else
+    catch (const mongocxx::query_exception & e)
     {
-        return bsoncxx::document::view({});
+        Logging::System.Critical("An error occurred when getting document from collection \""
+                                 + col + "\" of database \"" + db + "\"\n\t", e.what());
+        hasError = true;
+        return {};
     }
 }
 
@@ -94,7 +104,7 @@ bsoncxx::stdx::optional<mongocxx::cursor> DB::GetAllDocuments(std::string db,
         catch (const mongocxx::query_exception & e)
         {
             Logging::System.Critical("An error occurred when getting all documents from collection \""
-                                     + col + "\"of database \"" + db + "\"\n\t", e.what());
+                                     + col + "\" of database \"" + db + "\"\n\t", e.what());
             hasError = true;
             return {};
         }
@@ -127,6 +137,8 @@ bool DB::UpdateDocument(const bsoncxx::document::value& filter, const bsoncxx::d
     {
         return false;
     }
+    try
+    {
     bsoncxx::stdx::optional<mongocxx::result::update> result =
         CLIENT.database(db).collection(col).update_one(filter.view(), doc.view());
 
@@ -136,6 +148,12 @@ bool DB::UpdateDocument(const bsoncxx::document::value& filter, const bsoncxx::d
     }
     else
     {
+        return false;
+    }
+    }
+    catch (const mongocxx::bulk_write_exception & e)
+    {
+        Logging::System.Error("An error occurred when updating a document: ", e.what());
         return false;
     }
 }
@@ -185,10 +203,32 @@ bool DB::HasUserWritePrivileges(const std::string& db)
 
 bool DB::Login(const std::string& username, const std::string& pwd, const std::string& authDb)
 {
-    if (!CLIENT_IS_VALID)
+//     if (!CLIENT_IS_VALID)
+//     {
+//         return false;
+//     }
+    isInit = false;
+
+    Init("mongodb://" + username + ":" + pwd + "@192.168.0.152");
+    try
     {
+        bsoncxx::builder::stream::document ping;
+        ping << "listCollections" << 1;
+        auto db = CLIENT["CEP"];
+        auto result = db.run_command(ping.view());
+
+        if (result.view()["ok"].get_double() != 1)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    catch (const mongocxx::exception & e)
+    {
+        Logging::System.Error("An error occurred on login: ", e.what());
         return false;
     }
-    isInit = false;
-    return Init("mongodb://" + username + ":" + pwd + "@192.168.0.152");
 }

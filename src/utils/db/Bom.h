@@ -72,6 +72,18 @@ public:
         m_qty = qty;
     }
 
+    bool operator==(const ItemReference& other) const
+    {
+        return (m_id == other.m_id &&
+                m_objectId == other.m_objectId &&
+                m_qty == other.m_qty);
+    }
+
+    bool operator!=(const ItemReference& other) const
+    {
+        return !(*this == other);
+    }
+
 private:
     std::string m_id = "XXXX0000";
     std::string m_objectId = "N/A";
@@ -106,6 +118,12 @@ public:
     {
         return m_output;
     }
+
+    bool operator==(const BOM& other)
+    {
+        return (m_id == other.m_id && m_name == other.m_name);
+    }
+
     const DB::Item::Item GetOutput() const;
     const std::vector<DB::Item::Item> GetItems() const;
 private:

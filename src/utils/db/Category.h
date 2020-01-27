@@ -32,9 +32,14 @@ public:
         return (!m_name.empty() && !m_idPrefix.empty());
     }
 
-    bool operator==(const Category& other)
+    bool operator==(const Category& other) const
     {
         return (m_name == other.m_name && m_idPrefix == other.m_idPrefix && m_suffix == other.m_suffix);
+    }
+
+    bool operator!=(const Category& other) const
+    {
+        return !(*this == other);
     }
 
     inline const char GetSuffix() const

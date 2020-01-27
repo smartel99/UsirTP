@@ -12,6 +12,7 @@ static bsoncxx::document::value CreateDocumentForUpdate(BOM bom);
 static BOM CreateObject(const bsoncxx::document::view& doc);
 static ItemReference CreateItemReference(const bsoncxx::document::view& doc);
 static bool RemoveFromCache(const BOM& bom);
+static std::string FindDiffs(const BOM& a, const BOM& b);
 
 static std::vector<BOM> boms;
 static bool isInit = false;
@@ -94,6 +95,7 @@ bool DB::BOM::AddBom(const BOM& bom)
 
     boms.emplace_back(bom);
     bsoncxx::document::value doc = CreateDocument(bom);
+    Logging::Audit.Info("Created BOM \"" + bom.GetId(), "\"", true);
 
     return DB::InsertDocument(doc, "CEP", "BOMs");
 }
@@ -107,6 +109,7 @@ bool DB::BOM::EditBom(const BOM& oldBom, const BOM& newBom)
 
     boms.emplace_back(newBom);
     RemoveFromCache(oldBom);
+    Logging::Audit.Info("Edited BOM ", oldBom.GetId() + FindDiffs(oldBom, newBom), true);
 
     return DB::UpdateDocument(CreateDocument("id", oldBom.GetId()), CreateDocumentForUpdate(newBom), "CEP", "BOMs");
 }
@@ -119,6 +122,7 @@ bool DB::BOM::DeleteBom(const BOM& bom)
     }
 
     RemoveFromCache(bom);
+    Logging::Audit.Info("Deleted BOM \"" + bom.GetId(), "\"", true);
 
     return (DB::DeleteDocument(CreateDocument("id", bom.GetId()), "CEP", "BOMs"));
 }
@@ -131,7 +135,7 @@ const std::vector<BOM>& DB::BOM::GetAll()
 
 std::string DB::BOM::GetNewId()
 {
-    int max = -1;
+    int max = 0;
     for (DB::BOM::BOM& b : boms)
     {
         if (max < StringUtils::StringToNum<int>(b.GetId()))
@@ -140,7 +144,7 @@ std::string DB::BOM::GetNewId()
         }
     }
 
-    std::string ret = "BOM" + StringUtils::IntToString(max + 1);
+    std::string ret = "BOM" + StringUtils::NumToString(max + 1);
     boost::to_upper(ret);
     return ret;
 }
@@ -280,5 +284,49 @@ ItemReference CreateItemReference(const bsoncxx::document::view& doc)
 
 bool RemoveFromCache(const BOM& bom)
 {
+    for (auto i = boms.begin(); i != boms.end(); i++)
+    {
+        if (*i == bom)
+        {
+            boms.erase(i);
+            return true;
+        }
+    }
     return false;
+}
+
+std::string FindDiffs(const BOM& from, const BOM& to)
+{
+    std::string difs = "";
+
+    if (from.GetId() != to.GetId())
+    {
+        difs += "\n\r\tID:\n\r\t\tFrom: " + from.GetId() + "\n\r\t\tTo: " + to.GetId();
+    }
+    if (from.GetName() != to.GetName())
+    {
+        difs += "\n\r\tName:\n\r\t\tFrom: " + from.GetName() + "\n\r\t\tTo: " + to.GetName();
+    }
+    if (from.GetRawOutput() != to.GetRawOutput())
+    {
+        difs += "\n\r\tOutput Item:\n\r\t\tFrom: ";
+        difs += "\n\r\t\t\tId: " + from.GetRawOutput().GetId();
+        difs += "\n\r\t\t\tOId: " + from.GetRawOutput().GetObjId();
+        difs += "\n\r\t\t\tQuantity: " + StringUtils::NumToString(from.GetRawOutput().GetQuantity());
+
+        difs += "\n\r\t\tTo: ";
+        difs += "\n\r\t\t\tId: " + from.GetRawOutput().GetId();
+        difs += "\n\r\t\t\tOId: " + from.GetRawOutput().GetObjId();
+        difs += "\n\r\t\t\tQuantity: " + StringUtils::NumToString(from.GetRawOutput().GetQuantity());
+    }
+    if (from.GetRawItems().size() != to.GetRawItems().size())
+    {
+        int dif = from.GetRawItems().size() - to.GetRawItems().size();
+        difs += "\n\r\tItems: \n\r\t\t";
+        difs += dif < 0 ?
+            "Removed " + StringUtils::NumToString(-dif) + " items" :
+            "Added " + StringUtils::NumToString(dif) + " items";
+    }
+
+    return difs;
 }

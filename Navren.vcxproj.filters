@@ -96,6 +96,9 @@
     <ClCompile Include="src\widgets\BomViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\FilterUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\glErrors.h">
@@ -2313,6 +2316,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\widgets\Viewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\FilterUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

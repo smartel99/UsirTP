@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <windows.h>      // For common windows data types and function headers
 #define STRICT_TYPED_ITEMIDS
 #include <shlobj.h>
@@ -21,6 +21,7 @@ const COMDLG_FILTERSPEC c_rgSaveTypes[] =
     {L"Python (python.exe)", L"*.exe"},
     {L"Interpreter (main.py)", L"*.py"},
     {L"Log File (*.log)", L"*.log"},
+    {L"Comma Separated Values File", L"*.csv"},
     {L"All Documents (*.*)", L"*.*"}
 };
 
@@ -31,6 +32,7 @@ typedef enum
     INDEX_EXE,
     INDEX_PY,
     INDEX_LOG,
+    INDEX_CSV,
     INDEX_DEFAULT
 }FileTypeEnum_t;
 
@@ -74,7 +76,7 @@ public:
     IFACEMETHODIMP_(ULONG) Release()
     {
         long cRef = InterlockedDecrement(&_cRef);
-        if ( !cRef )
+        if (!cRef)
             delete this;
         return cRef;
     }
@@ -136,6 +138,3 @@ private:
 };
 
 HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void** ppv);
-
-
-

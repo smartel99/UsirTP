@@ -42,6 +42,7 @@ public:
         m_name(name + "##"), m_shouldShowCloseButton(shouldShowCloseButton),
         m_onCloseCallback(onCloseCallback), m_callStack(std::vector<FunctionCallObj>())
     {
+        m_name += StringUtils::NumToString(ImGui::GetID("SuperGoodSeedForImGuiId"));
     }
 
     bool operator==(const PopupCallStack& other)
@@ -172,15 +173,18 @@ void Popup::Render()
 
         ImVec4 col = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.f, 0.f, 0.f, 0.5f));
-        ImGui::Begin("##PopupBg", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
+        ImGui::Begin(std::string("popupBg##" + StringUtils::NumToString(ImGui::GetID("SuperGoodSeedForImGuiId"))).c_str(),
+                     nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
         {
             ImGui::SetNextWindowPos(childPos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, col);
-            ImGui::BeginChild("##PopupChild", ImVec2(400.f, 300.f),
+            ImGui::BeginChild(std::string("popupChildBg##" +
+                                          StringUtils::NumToString(ImGui::GetID("SuperGoodSeedForImGuiId"))).c_str(),
+                              ImVec2(400.f, 300.f),
                               true, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
             {
-            #pragma region Popup Title
+#pragma region Popup Title
                 Fonts::Push("Bold");
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4());
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4());
@@ -196,9 +200,9 @@ void Popup::Render()
 
                 ImGui::BeginChildFrame(ImGui::GetID("##PopupChildContent"),
                                        ImVec2(0, -(ImGui::GetFrameHeightWithSpacing() * 1.33f)));
-            #pragma endregion
+#pragma endregion
 
-            #pragma region Popup Content
+#pragma region Popup Content
                 for (FunctionCallObj func : popup.m_callStack)
                 {
                     switch (func.funcVec)
@@ -248,7 +252,6 @@ void Popup::Render()
                                 {
 
                                     cb();
-//                                     functionCalls.erase(popup);
                                     if (shouldClose)
                                     {
                                         popup.m_shouldBeClosed = true;
@@ -274,9 +277,9 @@ void Popup::Render()
                             break;
                     }
                 }
-            #pragma endregion
+#pragma endregion
 
-            #pragma region Popup Close Button
+#pragma region Popup Close Button
                 ImGui::EndChildFrame();
 
                 ImGui::Separator();
@@ -301,7 +304,7 @@ void Popup::Render()
                     ImVec2 winSize = ImGui::GetWindowSize();
                     winSize.y += ImGui::GetScrollMaxY();
                 }
-            #pragma endregion
+#pragma endregion
             }
             ImGui::EndChild();
             ImGui::PopStyleColor();

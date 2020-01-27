@@ -68,12 +68,12 @@ public:
         return m_id;
     }
 
-    inline const std::string& GetDescription()
+    inline const std::string& GetDescription() const
     {
         return m_description;
     }
 
-    inline DB::Category::Category& GetCategory()
+    inline const DB::Category::Category& GetCategory() const
     {
         return m_category;
     }
@@ -96,6 +96,16 @@ public:
     inline void SetQuantity(const float& val)
     {
         m_quantity = val;
+    }
+
+    inline void IncQuantity(float count = 1)
+    {
+        m_quantity += count;
+    }
+
+    inline void DecQuantity(float count = 1)
+    {
+        m_quantity -= count;
     }
 
     inline const std::string& GetUnit() const
@@ -156,9 +166,9 @@ bool AddItem(const Item& it);
 Item GetItemByName(const std::string& name);
 Item GetItemByID(const std::string& prefix);
 
-std::string GetNewId(DB::Category::Category cat, int id = -1);
+std::string GetNewId(const DB::Category::Category& cat, int id = -1);
 
-bool EditItem(Item& oldItem, const Item& newItem);
+bool EditItem(const Item& oldItem, const Item& newItem);
 bool DeleteItem(Item& item);
 
 const std::vector<Item>& GetAll();

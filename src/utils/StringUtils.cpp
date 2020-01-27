@@ -91,7 +91,8 @@ std::string StringUtils::GetCurrentTimeFormated(void)
     return std::string(timeStamp);
 }
 
-std::string StringUtils::IntToString(const unsigned int& val)
+template<typename T>
+std::string _NumToString(T val, bool zeroPadded)
 {
     std::stringstream ss;
 
@@ -99,17 +100,42 @@ std::string StringUtils::IntToString(const unsigned int& val)
     ss << val;
     std::string ret;
     ss >> ret;
-    ret = ret.substr(0, 4); // Only keep 4 chars.
-    // Append zero chars.
-    int strLen = ret.length();
-    for (int i = 0; i < 4 - strLen; i++)
+
+    if (zeroPadded)
     {
-        ret = "0" + ret;
+        ret = ret.substr(0, 4); // Only keep 4 chars.
+        // Append zero chars.
+        int strLen = ret.length();
+        for (int i = 0; i < 4 - strLen; i++)
+        {
+            ret = "0" + ret;
+        }
     }
 
     return ret;
 }
 
+std::string StringUtils::NumToString(const unsigned int& val, bool zeroPadded)
+{
+    return _NumToString(val, zeroPadded);
+}
+
+std::string StringUtils::NumToString(const int& val, bool zeroPadded)
+{
+    return _NumToString(val, zeroPadded);
+}
+
+std::string StringUtils::NumToString(const float& val)
+{
+    std::stringstream ss;
+
+    // The number is converted to string with the help of stringstream.
+    ss << val;
+    std::string ret;
+    ss >> ret;
+
+    return ret;
+}
 
 bool StringUtils::StringIsValidUrl(const std::string& str)
 {
@@ -149,4 +175,13 @@ template<> unsigned long StringUtils::StringToNum<unsigned long>(const std::stri
 
     char* end;
     return s.empty() ? 0 : std::strtoul(s.c_str(), &end, 10);
+}
+
+template<> float StringUtils::StringToNum<float>(const std::string& val)
+{
+    std::string s = val;
+    // Remove all prefacing characters.
+    s.erase(0, MIN(s.find_first_of("123456789"), s.size() - 1));
+
+    return s.empty() ? 0.f : std::stof(s);
 }

@@ -141,6 +141,7 @@
     <ClCompile Include="src\utils\Config.cpp" />
     <ClCompile Include="src\utils\db\MongoCore.cpp" />
     <ClCompile Include="src\utils\Document.cpp" />
+    <ClCompile Include="src\utils\FilterUtils.cpp" />
     <ClCompile Include="src\utils\Fonts.cpp" />
     <ClCompile Include="src\utils\StringUtils.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
@@ -865,6 +866,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="src\utils\Document.h" />
+    <ClInclude Include="src\utils\FilterUtils.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="src\utils\Fonts.h" />
     <ClInclude Include="src\utils\misc.h">
       <SubType>

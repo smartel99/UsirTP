@@ -1,0 +1,2 @@
+username dbAccess
+psswd    gsslab402

@@ -47,8 +47,12 @@ std::wstring StringToLongString(const std::string& src);
 
 std::string GetCurrentTimeFormated();
 
-std::string IntToString(const unsigned int& val);
 bool StringIsValidUrl(const std::string& str);
+
+
+std::string NumToString(const unsigned int& val, bool zeroPadded = true);
+std::string NumToString(const int& val, bool zeroPadded = true);
+std::string NumToString(const float& val);
 
 template<class T>
 T StringToNum(const std::string& val);
