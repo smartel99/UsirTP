@@ -246,7 +246,7 @@ void BomViewer::Render()
         }
         if (ImGui::BeginPopup(p.c_str(), ImGuiWindowFlags_AlwaysAutoResize))
         {
-            ImGui::Dummy(ImVec2(200, 0.1));
+            ImGui::Dummy(ImVec2(200.f, 0.1f));
             std::vector<DB::BOM::ItemReference> its = bom.GetRawItems();
             ImGui::Columns(2);
             Fonts::Push("Bold");
@@ -411,7 +411,7 @@ static void MakeEditPopup(bool isRetry)
                            });
     if (it != tmpItems.end())
     {
-        tmpSelectedOut = std::distance(tmpItems.begin(), it);    // Get the index of tmpOutput in tmpItems.
+        tmpSelectedOut = int(std::distance(tmpItems.begin(), it));    // Get the index of tmpOutput in tmpItems.
     }
     else
     {
@@ -571,7 +571,7 @@ void HandlePopupOutputPickerInput()
         ids.emplace_back(item.reference.GetId().c_str());
     }
 
-    ImGui::Combo("Created Item", &tmpSelectedOut, ids.data(), ids.size());
+    ImGui::Combo("Created Item", &tmpSelectedOut, ids.data(), int(ids.size()));
 
 }
 

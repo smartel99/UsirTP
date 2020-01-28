@@ -15,6 +15,9 @@
 
 #include <iostream>
 
+/**
+ * @brief   All the possible strings used by the Windows dialog for file types.
+ */
 const COMDLG_FILTERSPEC c_rgSaveTypes[] =
 {
     {L"Script (*.S)", L"*.S"},
@@ -25,15 +28,18 @@ const COMDLG_FILTERSPEC c_rgSaveTypes[] =
     {L"All Documents (*.*)", L"*.*"}
 };
 
-// Indices of file types.
+/**
+ * @enum FileTypeEnum_t
+ * @brief   Indexes of each file type in c_rgSaveType.
+ */
 typedef enum
 {
-    INDEX_SCRIPT = 1,
-    INDEX_EXE,
-    INDEX_PY,
-    INDEX_LOG,
-    INDEX_CSV,
-    INDEX_DEFAULT
+    INDEX_SCRIPT = 1,   /**< Index of *.S files */
+    INDEX_EXE,          /**< Index of *.exe files */
+    INDEX_PY,           /**< Index of *.py files */
+    INDEX_LOG,          /**< Index of *.log files */
+    INDEX_CSV,          /**< Index of *.csv files */
+    INDEX_DEFAULT       /**< Index of *.* files */
 }FileTypeEnum_t;
 
 // Controls.
@@ -51,6 +57,12 @@ typedef enum
 #define IDC_WRITEPROPERTIESWITHOUTUSINGHANDLERS 105
 
 /* File Dialog Event Handler *************************************************/
+/**
+ * @class   CDialogEventHandler
+ * @brief   Unfortunately for you and me, I took this from an example from
+ *          Microsoft without much thoughts about it. So I don't have the link
+ *          to said example nor do I remember what this is for... Good luck!
+ */
 class CDialogEventHandler :
     public IFileDialogEvents,
     public IFileDialogControlEvents
@@ -102,11 +114,16 @@ public:
     {
         return S_OK;
     };
+
+    // Suppress warning "The enum type '...' is unscoped. Prefer 'enum class' over 'enum'
+#pragma warning( suppress : 26812 )
     IFACEMETHODIMP OnShareViolation(IFileDialog*, IShellItem*, FDE_SHAREVIOLATION_RESPONSE*)
     {
         return S_OK;
     };
     IFACEMETHODIMP OnTypeChange(IFileDialog* pfd);
+    // Suppress warning "The enum type '...' is unscoped. Prefer 'enum class' over 'enum'
+#pragma warning( suppress : 26812 )
     IFACEMETHODIMP OnOverwrite(IFileDialog*, IShellItem*, FDE_OVERWRITE_RESPONSE*)
     {
         return S_OK;
@@ -131,9 +148,7 @@ public:
     {
     };
 private:
-    ~CDialogEventHandler()
-    {
-    };
+    ~CDialogEventHandler() = default;;
     long _cRef;
 };
 

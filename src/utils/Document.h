@@ -5,18 +5,23 @@
 
 #include "utils/CDialogEventHandler.h"
 
+/**
+ * @class   Document
+ * @brief   I'm pretty sure this whole class is useless, but you should
+ *          make sure of that by yourself before removing it.
+ */
 class Document
 {
 public:
     Document(const std::wstring path);
-    ~Document(void);
+    ~Document();
 
-    Document DoOpen(void);
-    void DoClose(void);
-    void DoForceClose(void);
-    void DoSave(void);
-    void DisplayContents(void);
-    void DisplayContextMenu(void);
+    Document DoOpen();
+    void DoClose();
+    void DoForceClose();
+    void DoSave();
+    void DisplayContents();
+    void DisplayContextMenu();
 
     inline void SetOpen(bool state)
     {
@@ -28,27 +33,27 @@ public:
         m_WantClose = state;
     }
 
-    inline bool IsOpen(void)
+    inline bool IsOpen()
     {
         return Open;
     }
 
-    inline bool* GetIsOpen(void)
+    inline bool* GetIsOpen()
     {
         return &Open;
     }
 
-    inline bool IsDirty(void)
+    inline bool IsDirty()
     {
         return m_Dirty;
     }
 
-    inline bool WantsToClose(void)
+    inline bool WantsToClose()
     {
         return m_WantClose;
     }
 
-    inline std::string Name(void)
+    inline std::string Name()
     {
         return m_FileName;
     }
@@ -65,6 +70,10 @@ private:
                                             // has been made.
 };
 
+/**
+ * @namespace   File Document.h Document
+ * @brief       The namespace that handles all things related to file operation
+ */
 namespace File
 {
 HRESULT OpenFile(std::wstring& filePath, FileTypeEnum_t type = INDEX_DEFAULT, LPCWSTR ext = L".*");

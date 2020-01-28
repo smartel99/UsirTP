@@ -373,8 +373,6 @@ void ItemViewer::Render()
         ImGui::Text("%0.3f $CDN", item.GetPrice());
         ImGui::NextColumn();
 
-        /** @todo Should all user be able to change quantities? */
-//         if (DB::HasUserWritePrivileges())
         {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
             ImGui::BeginChildFrame(ImGui::GetID(std::string("Qty" + item.GetId()).c_str()),
@@ -670,7 +668,6 @@ static void MakeEditPopup(bool isRetry)
     categories = DB::Category::GetAll();
     Popup::Init("Edit Item", false);
 
-    char* end;
     tmpId = StringUtils::StringToNum<int>(tmpItem.GetId());
     tmpAutoId = false;
 
@@ -862,7 +859,7 @@ void HandlePopupCategoryInput()
         cats.emplace_back(category.GetName().c_str());
     }
 
-    ImGui::Combo("Category", &tmpCat, cats.data(), cats.size());
+    ImGui::Combo("Category", &tmpCat, cats.data(), int(cats.size()));
 }
 
 void HandlePopupReferenceLinkInput()
@@ -899,7 +896,7 @@ void HandlePopupStatusInput()
     statuses.emplace_back("Obsolete");
     statuses.emplace_back("Not Recommended For New Design");
 
-    ImGui::Combo("Status", &tmpStatus, statuses.data(), statuses.size());
+    ImGui::Combo("Status", &tmpStatus, statuses.data(), int(statuses.size()));
 }
 
 int GetCategoryNumber(const DB::Category::Category& cat)

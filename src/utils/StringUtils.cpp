@@ -105,7 +105,7 @@ std::string _NumToString(T val, bool zeroPadded)
     {
         ret = ret.substr(0, 4); // Only keep 4 chars.
         // Append zero chars.
-        int strLen = ret.length();
+        int strLen = int(ret.length());
         for (int i = 0; i < 4 - strLen; i++)
         {
             ret = "0" + ret;

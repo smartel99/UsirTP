@@ -5,7 +5,8 @@
 #include <fstream>
 #include <filesystem>
 
-
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
 Document::Document(const std::wstring path)
 {
     m_FilePath = path;
@@ -33,29 +34,36 @@ Document::Document(const std::wstring path)
     Open = true;
 }
 
-Document::~Document(void)
-{
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+Document::~Document() = default;
 
-}
-
-Document Document::DoOpen(void)
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+Document Document::DoOpen()
 {
     return Document(m_FilePath);
 }
 
-void Document::DoClose(void)
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+void Document::DoClose()
 {
     m_WantClose = true;
 }
 
-void Document::DoForceClose(void)
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+void Document::DoForceClose()
 {
     // Empty the data buffer.
     m_FileData.clear();
     Open = false;
 }
 
-void Document::DoSave(void)
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+void Document::DoSave()
 {
     std::ofstream file;
     file.open(m_FilePath);
@@ -66,7 +74,7 @@ void Document::DoSave(void)
         return;
     }
 
-    for (std::string line : m_FileData)
+    for (const std::string& line : m_FileData)
     {
         // Copy all the modified data into the file.
         file << line;
@@ -76,7 +84,9 @@ void Document::DoSave(void)
     m_Dirty = false;
 }
 
-void Document::DisplayContents(void)
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+void Document::DisplayContents()
 {
     ImGui::PushID(this);
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 1.f, 1.f, 1.f));
@@ -100,7 +110,9 @@ void Document::DisplayContents(void)
     ImGui::PopID();
 }
 
-void Document::DisplayContextMenu(void)
+/** @attention The functions of the Document class aren't commented because the class
+ * is (probably) not used anywhere in this project */
+void Document::DisplayContextMenu()
 {
     if (ImGui::BeginPopupContextItem())
     {
@@ -119,6 +131,18 @@ void Document::DisplayContextMenu(void)
 
 namespace File
 {
+/**
+ * @brief   Make the user choose a file.
+ *          Beyond that, I have no idea what this does, it is an example
+ *          provided by Microsoft, which I can't find the link to anymore.
+ * @param   filePath: A reference to a wstring in which the chosen path will be stored.
+ * @param   type: The file type that will be selected by default when the pop up opens.
+ * @param   ext: I don't know the difference between that and `type`, but ext is the
+ *          extension of the default file type.
+ * @retval  The result of the operations I suppose. (https://en.wikipedia.org/wiki/HRESULT)
+ */
+// Suppress warning "The enum type '...' is unscoped. Prefer 'enum class' over 'enum'
+#pragma warning( suppress : 26812 )
 HRESULT OpenFile(std::wstring& filePath, FileTypeEnum_t type, LPCWSTR ext)
 {
     // CoCreate the File Open Dialog object.
@@ -280,7 +304,7 @@ DWORD GetCurrentPath(std::string& path)
     return nSize;
 }
 
-std::string GetCurrentPath(void)
+std::string GetCurrentPath()
 {
     std::string path = "";
     GetCurrentPath(path);

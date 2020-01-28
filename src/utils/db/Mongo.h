@@ -3,8 +3,9 @@
  * @addtogroup Mongo
  * @{
  * @file    Mongo
- * @author  Client Microdata
- * @brief   Header for the Mongo module.
+ * @author  Samuel Martel
+ * @brief   Contains all the the include statements needed to properly use
+ *          Mongodb.
  *
  * @date 1/16/2020 4:40:21 PM
  *
