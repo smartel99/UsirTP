@@ -25,14 +25,14 @@ const COMDLG_FILTERSPEC c_rgSaveTypes[] =
 };
 
 // Indices of file types.
-typedef enum
+enum class FileType
 {
     INDEX_SCRIPT = 1,
     INDEX_EXE,
     INDEX_PY,
     INDEX_LOG,
     INDEX_DEFAULT
-}FileTypeEnum_t;
+};
 
 // Controls.
 #define CONTROL_GROUP           2000
@@ -74,7 +74,7 @@ public:
     IFACEMETHODIMP_(ULONG) Release()
     {
         long cRef = InterlockedDecrement(&_cRef);
-        if ( !cRef )
+        if (!cRef)
             delete this;
         return cRef;
     }
@@ -100,11 +100,15 @@ public:
     {
         return S_OK;
     };
+// Disable C26818 for `FDS_SHAREVIOLATION_RESPONSE` enum.
+#pragma warning(suppress: 26812)
     IFACEMETHODIMP OnShareViolation(IFileDialog*, IShellItem*, FDE_SHAREVIOLATION_RESPONSE*)
     {
         return S_OK;
     };
     IFACEMETHODIMP OnTypeChange(IFileDialog* pfd);
+// Disable C26818 for `FDE_OVERWRITE_RESPONSE` enum.
+#pragma warning(suppress: 26812)
     IFACEMETHODIMP OnOverwrite(IFileDialog*, IShellItem*, FDE_OVERWRITE_RESPONSE*)
     {
         return S_OK;
