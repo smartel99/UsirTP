@@ -35,6 +35,8 @@ namespace Viewer
 /* Exported functions */
 void Init();
 void Render();
+void ShowChangeLog();
+void ShowSuggestionBox();
 
 }
 /* Have a wonderful day :) */

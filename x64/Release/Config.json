@@ -1,5 +1,5 @@
-{
-    "FontSize": 1,
+﻿{
+    "FontSize": 2,
     "LogLevel": 0,
-    "uri": "mongodb://CepDefault:gsslab402@192.168.0.152"
+    "uri": "mongodb://dbAccess:gsslab402@192.168.0.152"
 }

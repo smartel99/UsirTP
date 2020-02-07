@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <windows.h>      // For common windows data types and function headers
 #define STRICT_TYPED_ITEMIDS
 #include <shlobj.h>
@@ -15,24 +15,33 @@
 
 #include <iostream>
 
+/**
+ * @brief   All the possible strings used by the Windows dialog for file types.
+ */
 const COMDLG_FILTERSPEC c_rgSaveTypes[] =
 {
     {L"Script (*.S)", L"*.S"},
     {L"Python (python.exe)", L"*.exe"},
     {L"Interpreter (main.py)", L"*.py"},
     {L"Log File (*.log)", L"*.log"},
+    {L"Comma Separated Values File", L"*.csv"},
     {L"All Documents (*.*)", L"*.*"}
 };
 
 // Indices of file types.
 enum class FileType
+/**
+ * @enum FileTypeEnum_t
+ * @brief   Indexes of each file type in c_rgSaveType.
+ */
 {
-    INDEX_SCRIPT = 1,
-    INDEX_EXE,
-    INDEX_PY,
-    INDEX_LOG,
-    INDEX_DEFAULT
-};
+    INDEX_SCRIPT = 1,   /**< Index of *.S files */
+    INDEX_EXE,          /**< Index of *.exe files */
+    INDEX_PY,           /**< Index of *.py files */
+    INDEX_LOG,          /**< Index of *.log files */
+    INDEX_CSV,          /**< Index of *.csv files */
+    INDEX_DEFAULT       /**< Index of *.* files */
+}
 
 // Controls.
 #define CONTROL_GROUP           2000
@@ -49,6 +58,12 @@ enum class FileType
 #define IDC_WRITEPROPERTIESWITHOUTUSINGHANDLERS 105
 
 /* File Dialog Event Handler *************************************************/
+/**
+ * @class   CDialogEventHandler
+ * @brief   Unfortunately for you and me, I took this from an example from
+ *          Microsoft without much thoughts about it. So I don't have the link
+ *          to said example nor do I remember what this is for... Good luck!
+ */
 class CDialogEventHandler :
     public IFileDialogEvents,
     public IFileDialogControlEvents
@@ -133,13 +148,8 @@ public:
     {
     };
 private:
-    ~CDialogEventHandler()
-    {
-    };
+    ~CDialogEventHandler() = default;;
     long _cRef;
 };
 
 HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void** ppv);
-
-
-

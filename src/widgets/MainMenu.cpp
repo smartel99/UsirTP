@@ -4,12 +4,15 @@
 #include "widgets/Options.h"
 #include "widgets/CategoryViewer.h"
 #include "widgets/Login.h"
+#include "widgets/Viewer.h"
 
 
-MainMenu::MainMenu(void)
+MainMenu::MainMenu()
 = default;
 static void DrawStyleEditor();
+static void DrawPerfMonitor();
 static bool isEditorActive = false;
+static bool isPerMonitorActive = false;
 
 void MainMenu::Process()
 {
@@ -37,9 +40,14 @@ void MainMenu::Process()
     {
         DrawStyleEditor();
     }
+
+    if (isPerMonitorActive == true)
+    {
+        DrawPerfMonitor();
+    }
 }
 
-void MainMenu::FileMenu(void)
+void MainMenu::FileMenu()
 {
     if (ImGui::MenuItem("Login"))
     {
@@ -56,7 +64,7 @@ void MainMenu::FileMenu(void)
     }
 }
 
-void MainMenu::EditMenu(void)
+void MainMenu::EditMenu()
 {
     if (ImGui::MenuItem("Category Editor"))
     {
@@ -69,13 +77,21 @@ void MainMenu::EditMenu(void)
     }
 }
 
-void MainMenu::HelpMenu(void)
+void MainMenu::HelpMenu()
 {
-    if (ImGui::MenuItem("User Guide"))
+
+    if (ImGui::MenuItem("Change Log"))
     {
+        Viewer::ShowChangeLog();
     }
-    if (ImGui::MenuItem("About"))
+    if (ImGui::MenuItem("Feedback/Suggestion"))
     {
+        Viewer::ShowSuggestionBox();
+    }
+    ImGui::Separator();
+    if (ImGui::MenuItem("Performance Monitor"))
+    {
+        isPerMonitorActive = true;
     }
 }
 
@@ -86,4 +102,9 @@ void DrawStyleEditor()
     ImGui::ShowStyleEditor();
 
     ImGui::End();
+}
+
+void DrawPerfMonitor()
+{
+    ImGui::ShowMetricsWindow(&isPerMonitorActive);
 }

@@ -20,6 +20,10 @@ public:
     {
         m_Open = true;
     }
+    inline void Close()
+    {
+        m_Open = false;
+    }
 
 private:
     std::vector<std::string> m_Buf;
@@ -32,8 +36,8 @@ private:
 
 namespace Logging
 {
-#define DEFAULT_LOG_LEVEL LOG_LEVEL_DEBUG
-typedef enum
+#define DEFAULT_LOG_LEVEL LogLevelEnum_t::LOG_LEVEL_DEBUG
+enum class LogLevelEnum_t
 {
     LOG_LEVEL_DEBUG = 0,
     LOG_LEVEL_INFO,
@@ -41,18 +45,19 @@ typedef enum
     LOG_LEVEL_ERROR,
     LOG_LEVEL_CRITICAL,
     LOG_LEVEL_NONE,
-}LogLevelEnum_t;
+};
 
-void Clear(void);
-void Draw(void);
-void OpenConsole(void);
+void Init();
+void Clear();
+void Draw();
+void OpenConsole();
 void SetLogLevel(LogLevelEnum_t level);
 
-void Debug(const std::string& fmt);
-void Info(const std::string& fmt);
-void Warning(const std::string& fmt);
-void Error(const std::string& fmt);
-void Critical(const std::string& fmt);
+void Debug(const std::string& fmt, bool save = false);
+void Info(const std::string& fmt, bool save = false);
+void Warning(const std::string& fmt, bool save = false);
+void Error(const std::string& fmt, bool save = false);
+void Critical(const std::string& fmt, bool save = false);
 
 class LogSource
 {
@@ -62,7 +67,7 @@ public:
     }
 
     template<typename T = std::string>
-    void Debug(const std::string& str, T val = "")
+    void Debug(const std::string& str, T val = "", bool save = false)
     {
         std::ostringstream msg;
 
@@ -70,11 +75,11 @@ public:
             << "[DEBUG   ] "
             << str << val << "\n\r";
 
-        Logging::Debug(msg.str());
+        Logging::Debug(msg.str(), save);
     }
 
     template<typename T = std::string>
-    void Info(const std::string& str, T val = "")
+    void Info(const std::string& str, T val = "", bool save = false)
     {
         std::ostringstream msg;
 
@@ -82,11 +87,11 @@ public:
             << "[INFO    ] "
             << str << val << "\n\r";
 
-        Logging::Info(msg.str());
+        Logging::Info(msg.str(), save);
     }
 
     template<typename T = std::string>
-    void Warning(const std::string& str, T val = "")
+    void Warning(const std::string& str, T val = "", bool save = false)
     {
         std::ostringstream msg;
 
@@ -94,11 +99,11 @@ public:
             << "[WARNING ] "
             << str << val << "\n\r";
 
-        Logging::Warning(msg.str());
+        Logging::Warning(msg.str(), save);
     }
 
     template<typename T = std::string>
-    void Error(const std::string& str, T val = "")
+    void Error(const std::string& str, T val = "", bool save = false)
     {
         std::ostringstream msg;
 
@@ -106,11 +111,11 @@ public:
             << "[ERROR   ] "
             << str << val << "\n\r";
 
-        Logging::Error(msg.str());
+        Logging::Error(msg.str(), save);
     }
 
     template<typename T = std::string>
-    void Critical(const std::string& str, T val = "")
+    void Critical(const std::string& str, T val = "", bool save = false)
     {
         std::ostringstream msg;
 
@@ -118,7 +123,7 @@ public:
             << "[CRITICAL] "
             << str << val << "\n\r";
 
-        Logging::Critical(msg.str());
+        Logging::Critical(msg.str(), save);
     }
 
 private:
@@ -126,7 +131,6 @@ private:
 };
 
 extern LogSource System;
-extern LogSource TestBench;
-extern LogSource Interpreter;
+extern LogSource Audit;
 
 }

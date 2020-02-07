@@ -1,4 +1,4 @@
-#include "Document.h"
+﻿#include "Document.h"
 #include "imgui/imgui.h"
 #include "utils/StringUtils.h"
 #include "widgets/Popup.h"
@@ -208,7 +208,83 @@ HRESULT OpenFile(std::wstring& filePath, FileType type, LPCWSTR ext)
                     if (SUCCEEDED(hr))
                     {
                         // Set the selected file type index to Script.
-                        hr = pfd->SetFileTypeIndex(UINT(type));
+                        hr = pfd->SetFileTypeIndex(type);
+                        if (SUCCEEDED(hr))
+                        {
+                            // Set the default extension to be ".s"
+                            hr = pfd->SetDefaultExtension(ext);
+                            if (SUCCEEDED(hr))
+                            {
+                                // Show the dialog.
+                                hr = pfd->Show(nullptr);
+                                if (SUCCEEDED(hr))
+                                {
+                                    // Obtain the result, once the user
+                                    // clicks the 'Open' button.
+                                    // The result is an IShellItem object.
+                                    IShellItem* psiResult;
+                                    hr = pfd->GetResult(&psiResult);
+                                    if (SUCCEEDED(hr))
+                                    {
+                                        // Do the things we want to do.
+                                        PWSTR pszFilePath = nullptr;
+                                        hr = psiResult->GetDisplayName(
+                                            SIGDN_FILESYSPATH, &pszFilePath);
+                                        if (SUCCEEDED(hr))
+                                        {
+                                            filePath = pszFilePath;
+                                            CoTaskMemFree(pszFilePath);
+                                        }
+                                        psiResult->Release();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // Unhook the event handler.
+                pfd->Unadvise(dwCookie);
+            }
+            pfde->Release();
+        }
+        pfd->Release();
+    }
+    return hr;
+}
+
+HRESULT SaveFile(std::wstring& filePath, FileTypeEnum_t type, LPCWSTR ext)
+{
+    // CoCreate the File Open Dialog object.
+    IFileDialog* pfd = nullptr;
+    HRESULT hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr,
+                                  CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+    if (SUCCEEDED(hr))
+    {
+        // Create an event handling object, and hook it up to the dialog.
+        IFileDialogEvents* pfde = nullptr;
+        hr = CDialogEventHandler_CreateInstance(IID_PPV_ARGS(&pfde));
+        if (SUCCEEDED(hr))
+        {
+            // Hook up the event handler.
+            DWORD dwCookie;
+            hr = pfd->Advise(pfde, &dwCookie);
+            if (SUCCEEDED(hr))
+            {
+                // Set up the options on the dialog.
+                DWORD dwFlags;
+
+                // Before setting, always get the options first
+                // to avoid overwriting existing options.
+                hr = pfd->GetOptions(&dwFlags);
+                if (SUCCEEDED(hr))
+                {
+                    // Set the file types to display only.
+                    hr = pfd->SetFileTypes(ARRAYSIZE(c_rgSaveTypes),
+                                           c_rgSaveTypes);
+                    if (SUCCEEDED(hr))
+                    {
+                        // Set the selected file type index to Script.
+                        hr = pfd->SetFileTypeIndex(type);
                         if (SUCCEEDED(hr))
                         {
                             // Set the default extension to be ".s"
