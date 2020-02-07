@@ -215,40 +215,68 @@ public:
         return m_location;
     }
 
+    inline const bool IsValid() const
+    {
+        if (m_isValid == false ||
+            (m_id.empty()) && m_oid.empty())
+        {
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     bool operator==(const Item& other)
     {
         return (m_id == other.m_id &&
                 m_description == other.m_description &&
                 m_category == other.m_category &&
                 m_referenceLink == other.m_referenceLink &&
-                GetLocation() == other.GetLocation() &&
+                m_location == other.m_location &&
                 m_price == other.m_price &&
                 m_quantity == other.m_quantity &&
                 m_unit == other.m_unit &&
                 m_status == other.m_status);
     }
 
+    bool operator==(const std::string& other)
+    {
+        return(m_oid == other ||
+               m_id == other ||
+               m_description == other ||
+               m_category.GetName() == other ||
+               m_referenceLink == other ||
+               m_location == other ||
+               m_unit == other);
+    }
+
 private:
     /* The mongodb ObjectId */
-    std::string             m_oid = "N/A";
+    std::string             m_oid = "";
     /* The CEP id */
-    std::string             m_id = "XXXX0000";
+    std::string             m_id = "";
     /* The description */
-    std::string             m_description = "Default Description";
+    std::string             m_description = "";
     /* The category */
     Category::Category      m_category = Category::Category();
     /* A link, file path or any text used as a reference */
-    std::string             m_referenceLink = "Default Link";
+    std::string             m_referenceLink = "";
     /* The physical location */
-    std::string             m_location = "Default Location";
+    std::string             m_location = "";
     /* The price per unit, in $CDN */
     float                   m_price = 0.00f;
     /* The currently available quantity */
     float                   m_quantity = 0;
     /* The unit used when representing quantities */
-    std::string             m_unit = "Default Unit";
+    std::string             m_unit = "";
     /* The current production status */
     ItemStatus              m_status = ItemStatus::active;
+    /* The validity of the object.
+     * The Item is considered invalid if the default constructor was used
+     * or if the id or ObjectId are empty. */
+    bool                    m_isValid = false;
 };
 
 bool Init();

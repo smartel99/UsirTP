@@ -142,7 +142,7 @@ void Logger::Draw(const char* title)
 
 void Logging::Init()
 {
-    bsoncxx::stdx::optional<mongocxx::cursor> entries = DB::GetAllDocuments("CEP", "AuditLog");
+    bsoncxx::stdx::optional<mongocxx::cursor> entries = DB::GetAllDocuments(DATABASE, "AuditLog");
     if (entries)
     {
         for (auto& e : entries.value())
@@ -331,5 +331,5 @@ void SaveToDB(const std::string & msg)
     auto builder = bsoncxx::builder::basic::document{};
     builder.append(kvp("entry", msg));
 
-    DB::InsertDocument(builder.extract(), "CEP", "AuditLog");
+    DB::InsertDocument(builder.extract(), DATABASE, "AuditLog");
 }

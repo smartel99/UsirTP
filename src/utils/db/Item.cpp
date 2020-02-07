@@ -17,8 +17,8 @@ static bsoncxx::document::value CreateDocument(Item it);
 static bsoncxx::document::value CreateDocument(const std::string& field, const std::string& val);
 static bsoncxx::document::value CreateDocumentForUpdate(Item it);
 static Item CreateObject(const bsoncxx::document::view& doc);
-static bool FindInCache(Item& it, const std::string& filter);
 static bool FindInCache(Item& it);
+static bool FindInCache(Item& it, const std::string& filter);
 static bool RemoveFromCache(const Item& it);
 static std::string FindDiffs(const Item& from, const Item& to);
 
@@ -45,7 +45,7 @@ bool DB::Item::Init()
     // Clear the cache.
     items.clear();
     // Get all the items from the database.
-    bsoncxx::stdx::optional<mongocxx::cursor> its = DB::GetAllDocuments("CEP", "Items");
+    bsoncxx::stdx::optional<mongocxx::cursor> its = DB::GetAllDocuments(DATABASE, "Items");
     // `its` will be `{}` if the query failed.
     if (!its)
     {
@@ -124,7 +124,7 @@ bool DB::Item::AddItem(const Item& it)
     // Create a mongodb document from the Item.
     bsoncxx::document::value itDoc = CreateDocument(it);
     // Insert the new Item in the database.
-    bool r = DB::InsertDocument(itDoc, "CEP", "Items");
+    bool r = DB::InsertDocument(itDoc, DATABASE, "Items");
     // Log the event.
     Logging::Audit.Info("Created Item \"" + it.GetId(), "\"", true);
     // Refresh Cache.
@@ -155,12 +155,27 @@ Item DB::Item::GetItemByName(const std::string& name)
  */
 Item DB::Item::GetItemByID(const std::string& id)
 {
+    // Create a default, non-valid Item to store the output.
+    Item c = Item("", "");
     if (!IS_INIT)
     {
-        return DB::Item::Item();
+        return c;
     }
-    // Create an Item object from the result of the query.
-    return (CreateObject(DB::GetDocument("CEP", "Items", CreateDocument("id", id))));
+
+    // Search in the cache for a Item with a matching name.
+    if (FindInCache(c, id) == false)
+    {
+        // If no matching category was found in the cache, query the database.
+        c = CreateObject(DB::GetDocument(DATABASE, "Items", CreateDocument("id", id)));
+        // If a match was found:
+        if (c.IsValid() == true)
+        {
+            // Add it to the cache.
+            items.emplace_back(c);
+        }
+    }
+
+    return c;
 }
 
 /**
@@ -242,7 +257,7 @@ bool DB::Item::EditItem(const Item& oldItem, const Item& newItem)
     items.emplace_back(newItem);
     // Update the Item in the database.
     bool r = (DB::UpdateDocument(CreateDocument("id", oldItem.GetId()),
-                                 CreateDocumentForUpdate(newItem), "CEP", "Items"));
+                                 CreateDocumentForUpdate(newItem), DATABASE, "Items"));
     // Log the event.
     Logging::Audit.Info("Edited Item ", oldItem.GetId() + FindDiffs(oldItem, newItem), true);
 
@@ -269,7 +284,7 @@ bool DB::Item::DeleteItem(Item& item)
     // Remove the Item from the cache.
     RemoveFromCache(item);
     // Delete the Item from the database.
-    bool r = (DB::DeleteDocument(CreateDocument("id", item.GetId()), "CEP", "Items"));
+    bool r = (DB::DeleteDocument(CreateDocument("id", item.GetId()), DATABASE, "Items"));
     // Log the event.
     Logging::Audit.Info("Deleted Item \"" + item.GetId(), "\"", true);
 
@@ -531,6 +546,30 @@ bool FindInCache(Item& it)
     {
         // If the Item matches `it`:
         if (i == it)
+        {
+            // We found it!
+            it = i;
+            return true;
+        }
+    }
+    // No matching Item was found in the cache.
+    return false;
+}
+
+/**
+ * @brief   Search the cache to check if an Item that has a member
+ *          that matches the requested value.
+ * @param   it: A reference where the found Item will be stored.
+ * @param   val: The value to look for.
+ * @retval  True if the Item is found, false otherwise.
+ */
+bool FindInCache(Item& it, const std::string& val)
+{
+    // For each Item in the cache:
+    for (Item i : items)
+    {
+        // If the Item has a member identical to val:
+        if (i == val)
         {
             // We found it!
             it = i;

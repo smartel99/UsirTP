@@ -58,7 +58,7 @@ bool DB::BOM::Init()
     boms.clear();
 
     // Get all the BOMs from the database.
-    bsoncxx::stdx::optional<mongocxx::cursor> bs = DB::GetAllDocuments("CEP", "BOMs");
+    bsoncxx::stdx::optional<mongocxx::cursor> bs = DB::GetAllDocuments(DATABASE, "BOMs");
 
     // `bs` will be `{}` if the query failed.
     if (!bs)
@@ -142,7 +142,7 @@ bool DB::BOM::AddBom(const BOM& bom /**< [in] The BOM to insert into the databas
     Logging::Audit.Info("Created BOM \"" + bom.GetId(), "\"", true);
 
     // Insert the BOM in the database.
-    return DB::InsertDocument(doc, "CEP", "BOMs");
+    return DB::InsertDocument(doc, DATABASE, "BOMs");
 }
 
 /**
@@ -174,7 +174,7 @@ bool DB::BOM::EditBom(const BOM& oldBom     /**< [in] The BOM object to edit  */
     // Update the document in the database:
     //  - CreateDocument -> Create a mongodb document containing only the id of the old bom to use as a filter.
     //  - CreateDocumentForUpdate -> Create a mongodb document with the new bom.
-    return DB::UpdateDocument(CreateDocument("id", oldBom.GetId()), CreateDocumentForUpdate(newBom), "CEP", "BOMs");
+    return DB::UpdateDocument(CreateDocument("id", oldBom.GetId()), CreateDocumentForUpdate(newBom), DATABASE, "BOMs");
 }
 
 /**
@@ -197,7 +197,7 @@ bool DB::BOM::DeleteBom(const BOM& bom /**< [in] The BOM object to delete */)
     Logging::Audit.Info("Deleted BOM \"" + bom.GetId(), "\"", true);
 
     // Delete the BOM from the database.
-    return (DB::DeleteDocument(CreateDocument("id", bom.GetId()), "CEP", "BOMs"));
+    return (DB::DeleteDocument(CreateDocument("id", bom.GetId()), DATABASE, "BOMs"));
 }
 
 /**
@@ -267,7 +267,8 @@ bsoncxx::document::value CreateDocument(BOM bom /**< [in] The BOM object to crea
         array_builder.append(make_document(
             kvp("_id", bsoncxx::oid(item.GetObjId())),  // ObjectID: Reference to mongodb document in the DB.
             kvp("id", item.GetId()),                    // id:       CEP Id of the item.
-            kvp("quantity", item.GetQuantity())));      // quantity: Quantity needed for that item.
+            kvp("quantity", item.GetQuantity()),        // quantity: Quantity needed for that item.
+            kvp("position", item.GetPosition())));      // position: Position of the item in the list.
     }
 
     // Add the array we just created.
@@ -398,6 +399,7 @@ ItemReference CreateItemReference(const bsoncxx::document::view& doc)
     std::string id = "N/A";
     std::string oid = "N/A";
     float qty = 0.f;
+    int position = 0;
 
     // Get the id field of the document.
     bsoncxx::document::element el = doc["id"];
@@ -438,8 +440,21 @@ ItemReference CreateItemReference(const bsoncxx::document::view& doc)
         }
     }
 
+    // Get the position field of the document.
+    el = doc["position"];
+    // If the field exists:
+    if (el.raw() != nullptr)
+    {
+        // If the field's value is of the desired type:
+        if (el.type() == bsoncxx::type::k_int32)
+        {
+            // Get the value.
+            position = int(el.get_int32().value);
+        }
+    }
+
     // Instantiate ItemReference with the values we extracted from the document.
-    return ItemReference(id, oid, qty);
+    return ItemReference(id, oid, qty, position);
 
 }
 

@@ -34,7 +34,11 @@ namespace DB
 {
 /*****************************************************************************/
 /* Exported defines */
-
+#ifdef USE_DEBUG_DB
+#define DATABASE "CEP_DEBUG"
+#else
+#define DATABASE "CEP"
+#endif
 
 /*****************************************************************************/
 /* Exported macro */

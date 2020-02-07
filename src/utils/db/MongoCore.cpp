@@ -287,8 +287,8 @@ bool DB::HasUserWritePrivileges(const std::string& db)
             << "field1" << "Value1"
             << finalize;
         // Try to add it to the database then deleting it.
-        InsertDocument(doc, "CEP", "privilegesVerification");
-        DeleteDocument(doc, "CEP", "privilegesVerification");
+        InsertDocument(doc, DATABASE, "privilegesVerification");
+        DeleteDocument(doc, DATABASE, "privilegesVerification");
         return true;
     }
     catch (std::exception)
@@ -317,13 +317,13 @@ bool DB::Login(const std::string& username, const std::string& pwd, const std::s
     try
     {
         // To verify if the login was good or not, we send a command to list all the 
-        // collections inside of the "CEP" database. Since the mongodb server requires 
+        // collections inside of the DATABASE database. Since the mongodb server requires 
         // that all clients be authenticated to do anything, the command will fail
         // with a response of { "ok" : 0 }, even though the listCollections command
         // only requires read permissions.
         bsoncxx::builder::stream::document ping;
         ping << "listCollections" << 1;
-        auto db = CLIENT["CEP"];
+        auto db = CLIENT[DATABASE];
         auto result = db.run_command(ping.view());
 
         if (result.view()["ok"].get_double() != 1)

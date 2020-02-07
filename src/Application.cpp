@@ -138,7 +138,6 @@ void Application::Run()
         ImGui::Begin("Main Menu", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollWithMouse);
         ImGui::PopStyleVar();
 
-//         ImGui::ShowMetricsWindow();
 
         for (const std::function<void()>& widget : m_widgets)
         {

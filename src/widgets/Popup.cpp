@@ -38,8 +38,9 @@ class PopupCallStack
 public:
     PopupCallStack(std::string name = "Popup",
                    bool shouldShowCloseButton = true,
-                   std::function<void()> onCloseCallback = nullptr) :
-        m_name(name + "##"), m_shouldShowCloseButton(shouldShowCloseButton),
+                   std::function<void()> onCloseCallback = nullptr,
+                   ImVec2 popupSize = ImVec2()) :
+        m_name(name + "##"), m_size(popupSize), m_shouldShowCloseButton(shouldShowCloseButton),
         m_onCloseCallback(onCloseCallback), m_callStack(std::vector<FunctionCallObj>())
     {
         m_name += StringUtils::NumToString(ImGui::GetID("SuperGoodSeedForImGuiId"));
@@ -53,6 +54,7 @@ public:
     }
     std::vector<FunctionCallObj> m_callStack = std::vector<FunctionCallObj>();
     std::string m_name = "";
+    ImVec2 m_size = ImVec2(400, 300);
     bool m_shouldShowCloseButton = true;
     std::function<void()> m_onCloseCallback = nullptr;
     bool m_shouldBeClosed = false;
@@ -122,6 +124,7 @@ static void SetTextColor(const std::string& col);
 static bool isInit = false;
 static bool showCloseButton = true;
 static std::string popupName = "";
+static ImVec2 popupSize = ImVec2();
 static std::function<void()> onCloseCallback = nullptr;
 
 static std::vector<std::function<void()>>   functionsVoidVoid;
@@ -136,15 +139,15 @@ static std::vector<PopupCallStack>    functionCalls;
 static float width = 0.f;
 static float height = 0.f;
 
-void Popup::Init(std::string name, bool showButton)
+void Popup::Init(std::string name, bool showButton, ImVec2 size)
 {
-    functionCalls.emplace_back(PopupCallStack(name, showButton));
+    functionCalls.emplace_back(PopupCallStack(name, showButton, nullptr, size));
     isInit = true;
 }
 
-void Popup::Init(std::string name, std::function<void()> onCloseEvent)
+void Popup::Init(std::string name, std::function<void()> onCloseEvent, ImVec2 size)
 {
-    functionCalls.emplace_back(PopupCallStack(name, true, onCloseEvent));
+    functionCalls.emplace_back(PopupCallStack(name, true, onCloseEvent, size));
     isInit = true;
 }
 
@@ -181,7 +184,7 @@ void Popup::Render()
             ImGui::PushStyleColor(ImGuiCol_ChildBg, col);
             ImGui::BeginChild(std::string("popupChildBg##" +
                                           StringUtils::NumToString(ImGui::GetID("SuperGoodSeedForImGuiId"))).c_str(),
-                              ImVec2(400.f, 300.f),
+                              popup.m_size,
                               true, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
             {
 #pragma region Popup Title
@@ -233,7 +236,10 @@ void Popup::Render()
                             std::string arg = functionsBoolString[func.functionIndex].arg;
                             if (f)
                             {
-                                f(arg);
+                                if (f(arg))
+                                {
+                                    popup.m_shouldBeClosed = true;
+                                }
                             }
                             break;
                         }

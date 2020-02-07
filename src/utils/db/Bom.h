@@ -54,8 +54,8 @@ public:
     /**
      * @brief   Construct an object with an item id, its mongodb's ObjectId and the quantity.
      */
-    ItemReference(const std::string& id, const std::string& objId, float qty) :
-        m_id(id), m_objectId(objId), m_qty(qty)
+    ItemReference(const std::string& id, const std::string& objId, float qty, int position) :
+        m_id(id), m_objectId(objId), m_qty(qty), m_position(position)
     {
     }
 
@@ -90,6 +90,16 @@ public:
         return m_objectId;
     }
 
+    inline const int GetPosition() const
+    {
+        return m_position;
+    }
+
+    inline void SetPosition(int position)
+    {
+        m_position = position;
+    }
+
     /**
      * @brief   Get the quantity.
      * @param   None
@@ -108,6 +118,16 @@ public:
     inline void SetQuantity(float qty)
     {
         m_qty = qty;
+    }
+
+    /**
+     * @brief   Return a copy of the DB::Item::Item represented by `this`.
+     * @param   None
+     * @retval  The instance of DB::Item::Item
+     */
+    inline DB::Item::Item GetItem() const
+    {
+        return DB::Item::GetItemByID(m_id);
     }
 
     /**
@@ -137,6 +157,7 @@ private:
     std::string m_id = "XXXX0000";  /**< The CEP id of the item */
     std::string m_objectId = "N/A"; /**< The mongodb ObjectId of the item */
     float       m_qty = 0.00f;      /**< The quantity needed by the BOM */
+    int         m_position = 0;     /**< The item's position in the list */
 };
 
 /**

@@ -115,17 +115,17 @@ std::string _NumToString(T val, bool zeroPadded)
     return ret;
 }
 
-std::string StringUtils::NumToString(const unsigned int& val, bool zeroPadded)
+std::string StringUtils::NumToString(unsigned int val, bool zeroPadded)
 {
     return _NumToString(val, zeroPadded);
 }
 
-std::string StringUtils::NumToString(const int& val, bool zeroPadded)
+std::string StringUtils::NumToString(int val, bool zeroPadded)
 {
     return _NumToString(val, zeroPadded);
 }
 
-std::string StringUtils::NumToString(const float& val)
+std::string StringUtils::NumToString(float val)
 {
     std::stringstream ss;
 

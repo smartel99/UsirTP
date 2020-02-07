@@ -38,9 +38,14 @@ public:
     FilterHandler(const std::vector<std::string>& categories);
 
     template<class T>
-    bool CheckMatch(const T& item);
+    bool CheckMatch(const T& item, int category = -1);
 
     void Render();
+
+    inline void ClearText()
+    {
+        memset(m_filterText, 0, sizeof(m_filterText));
+    }
 
 private:
     char m_filterText[MAX_INPUT_LENGHT] = { 0 };

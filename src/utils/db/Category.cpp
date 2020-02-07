@@ -42,7 +42,7 @@ bool DB::Category::Init()
     // Clear the cache.
     categories.clear();
     // Get all the categories from the database.
-    bsoncxx::stdx::optional<mongocxx::cursor> cats = DB::GetAllDocuments("CEP", "Categories");
+    bsoncxx::stdx::optional<mongocxx::cursor> cats = DB::GetAllDocuments(DATABASE, "Categories");
 
     // `cats` will be `{}` if the query failed.
     if (!cats)
@@ -122,7 +122,7 @@ bool DB::Category::AddCategory(const Category& category)
     bsoncxx::document::value catDoc = CreateDocument(category);
 
     // Insert the newly created document in the database.
-    return DB::InsertDocument(catDoc, "CEP", "Categories");
+    return DB::InsertDocument(catDoc, DATABASE, "Categories");
 }
 
 /**
@@ -147,7 +147,7 @@ Category DB::Category::GetCategoryByName(const std::string& name)
     if (FindInCache(c, name) == false)
     {
         // If no matching category was found in the cache, query the database.
-        c = CreateObject(DB::GetDocument("CEP", "Categories", CreateDocument("name", name)));
+        c = CreateObject(DB::GetDocument(DATABASE, "Categories", CreateDocument("name", name)));
         // If a match was found:
         if (c.IsValid() == true)
         {
@@ -181,7 +181,7 @@ Category DB::Category::GetCategoryByPrefix(const std::string& prefix)
     if (FindInCache(c, prefix) == false)
     {
         // If there was no match, query the database.
-        c = CreateObject(DB::GetDocument("CEP", "Categories", CreateDocument("prefix", prefix)));
+        c = CreateObject(DB::GetDocument(DATABASE, "Categories", CreateDocument("prefix", prefix)));
         // If the query succeeded and a Category was returned by the database:
         if (c.IsValid() == true)
         {
@@ -220,7 +220,7 @@ bool EditCategory(const Category& oldCat, const Category& newCat)
     //  - CreateDocument -> Create a mongodb document containing only the id of the old category to use as a filter.
     //  - CreateDocumentForUpdate -> Create a mongodb document with the new category.
     return (DB::UpdateDocument(CreateDocument("prefix", oldCat.GetPrefix()),
-                               CreateDocumentForUpdate(newCat), "CEP", "Categories"));
+                               CreateDocumentForUpdate(newCat), DATABASE, "Categories"));
 }
 
 /**
@@ -241,7 +241,7 @@ bool DeleteCategory(const Category& category)
     RemoveFromCache(category);
 
     // Delete the category from the database.
-    return (DB::DeleteDocument(CreateDocument(category), "CEP", "Categories"));
+    return (DB::DeleteDocument(CreateDocument(category), DATABASE, "Categories"));
 }
 
 /**

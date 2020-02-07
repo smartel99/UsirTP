@@ -66,11 +66,14 @@ static std::vector<ItemRef> tmpItems;
 static DB::BOM::ItemReference tmpOutput;
 static int tmpSelectedOut = 0;
 static char tmpName[MAX_INPUT_LENGHT];
+static int tmpQuantityMade = 1;
 static int tmpQuantityToMake = 1;
 static bool isAddOpen = false;
 static bool isEditOpen = false;
 static bool isMakeValid = false;
 static std::wstring tmpOutputFilePath = L"";
+
+static FilterUtils::FilterHandler itemFilter;
 
 const static std::vector<std::string> cats = { "ID", "Description", "Output ID" };
 static FilterUtils::FilterHandler filter(cats);
@@ -246,11 +249,13 @@ void BomViewer::Render()
         }
         if (ImGui::BeginPopup(p.c_str(), ImGuiWindowFlags_AlwaysAutoResize))
         {
-            ImGui::Dummy(ImVec2(200.f, 0.1f));
+            ImGui::Dummy(ImVec2(400.f, 0.1f));
             std::vector<DB::BOM::ItemReference> its = bom.GetRawItems();
-            ImGui::Columns(2);
+            ImGui::Columns(3);
             Fonts::Push("Bold");
             ImGui::Text("Item ID");
+            ImGui::NextColumn();
+            ImGui::Text("Description");
             ImGui::NextColumn();
             ImGui::Text("Qty Needed");
             Fonts::Pop();
@@ -261,11 +266,16 @@ void BomViewer::Render()
                 ImGui::Separator();
                 ImGui::Text(it.GetId().c_str());
                 ImGui::NextColumn();
+                std::string d = it.GetItem().GetDescription().substr(0, 15) + "...";
+                ImGui::Text(d.c_str());
+                ImGui::NextColumn();
                 ImGui::Text("%0.2f", it.GetQuantity());
                 ImGui::NextColumn();
             }
             ImGui::Columns(1);
             ImGui::Separator();
+
+            ImGui::Text("Makes %0.2f %s", bom.GetRawOutput().GetQuantity(), bom.GetOutput().GetUnit());
 
             ImGui::EndPopup();
         }
@@ -278,7 +288,7 @@ void BomViewer::Render()
 
 void RenderAddWindow()
 {
-    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(800, 700), ImGuiCond_Appearing);
     if (ImGui::Begin("Add new BOM"))
     {
 
@@ -302,7 +312,7 @@ void RenderAddWindow()
 
 void RenderEditWindow()
 {
-    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(800, 700), ImGuiCond_Appearing);
     if (ImGui::Begin("Edit BOM"))
     {
 
@@ -379,9 +389,12 @@ static void MakeNewPopup()
     std::vector<DB::Item::Item> items = DB::Item::GetAll();
     for (auto& i : items)
     {
-        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(), i.GetQuantity()), false));
+        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(), i.GetQuantity(), tmpItems.size()),
+                                      false));
     }
     tmpSelectedOut = 0;
+    tmpQuantityMade = 0;
+    itemFilter.ClearText();
 }
 
 static void MakeEditPopup(bool isRetry)
@@ -389,7 +402,8 @@ static void MakeEditPopup(bool isRetry)
     std::vector<DB::Item::Item> items = DB::Item::GetAll();
     for (auto& i : items)
     {
-        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(), i.GetQuantity()), false));
+        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(), i.GetQuantity(), tmpItems.size()),
+                                      false));
         auto it = std::find_if(tmpBom.GetRawItems().begin(),
                                tmpBom.GetRawItems().end(),
                                [i](const DB::BOM::ItemReference& obj)
@@ -401,6 +415,7 @@ static void MakeEditPopup(bool isRetry)
         {
             tmpItems.back().isSelected = true;
             tmpItems.back().quantity = it->GetQuantity();
+            tmpItems.back().reference.SetPosition(it->GetPosition());
         }
     }
     tmpOutput = tmpBom.GetRawOutput();
@@ -418,6 +433,8 @@ static void MakeEditPopup(bool isRetry)
         tmpSelectedOut = 0;
     }
     strcpy_s(tmpName, sizeof(tmpName), tmpBom.GetName().c_str());
+    tmpQuantityMade = int(tmpBom.GetRawOutput().GetQuantity());
+    itemFilter.ClearText();
 }
 
 static void MakeDeletePopup()
@@ -436,6 +453,8 @@ static void CancelAction()
     memset(tmpName, 0, sizeof(tmpName));
     tmpItems.clear();
     tmpOutput = DB::BOM::ItemReference();
+    tmpQuantityMade = 0;
+    tmpQuantityToMake = 0;
 
     isEditOpen = false;
     isAddOpen = false;
@@ -466,7 +485,10 @@ void SaveNewBom()
             items.emplace_back(item.reference);
         }
     }
+
+    tmpItems.at(tmpSelectedOut).reference.SetQuantity(float(tmpQuantityMade));
     tmpOutput = tmpItems.at(tmpSelectedOut).reference;
+
     DB::BOM::AddBom(DB::BOM::BOM(id, name, items, tmpOutput));
     CancelAction();
 }
@@ -480,11 +502,14 @@ void SaveEditedBom()
     {
         if (item.isSelected == true)
         {
+            item.reference.SetQuantity(item.quantity);
             items.emplace_back(item.reference);
         }
     }
 
-    tmpOutput = tmpItems.at(tmpSelectedOut).reference;
+    ItemRef newOut = tmpItems.at(tmpSelectedOut);
+    newOut.reference.SetQuantity(float(tmpQuantityMade));
+    tmpOutput = newOut.reference;
 
     DB::BOM::EditBom(tmpBom, DB::BOM::BOM(tmpBom.GetId(), name, items, tmpOutput));
     CancelAction();
@@ -522,10 +547,21 @@ void CommitMake()
 
 void HandlePopupItemPickerInput()
 {
-    static FilterUtils::FilterHandler itemFilter;
+    static bool shouldOnlyShowSelected = false;
+    static std::string itemClicked = "";
     ImGui::Text("Items to use:");
     itemFilter.Render();
-    ImGui::BeginChildFrame(ImGui::GetID("ItemPickerChildFrame"), ImVec2(0, 200));
+    ImGui::Checkbox("Only show selected items", &shouldOnlyShowSelected);
+
+    ImVec2 size = ImVec2(0, ImGui::GetWindowHeight() - 250);
+    ImGui::BeginChildFrame(ImGui::GetID("ItemPickerChildFrame"), size);
+    float availWidth = ImGui::GetWindowContentRegionWidth();
+
+    std::sort(tmpItems.begin(), tmpItems.end(), [](ItemRef& a, ItemRef& b)
+              {
+                  return a.reference.GetPosition() < b.reference.GetPosition();
+              });
+
     ImGui::Columns(3);
     ImGui::Text("Item ID");
     ImGui::NextColumn();
@@ -533,15 +569,83 @@ void HandlePopupItemPickerInput()
     ImGui::NextColumn();
     ImGui::Text("Quantity");
     ImGui::NextColumn();
-
     for (auto& item : tmpItems)
     {
-        if (itemFilter.CheckMatch(DB::Item::GetItemByID(item.reference.GetId())) == false)
+        // Only display the item if it matches the filter or 
+        // if the "Only show selected items" checkbox is active (shouldOnlyShowSelected == true),
+        // only display the item if it is included in the BOM.
+        if ((itemFilter.CheckMatch(DB::Item::GetItemByID(item.reference.GetId())) == false &&
+             itemFilter.CheckMatch(item.reference.GetItem(), 1) == false) ||
+             (shouldOnlyShowSelected == true && item.isSelected == false))
         {
             continue;
         }
         ImGui::Separator();
+        ImVec2 checkboxPos1 = ImGui::GetCursorScreenPos();
+        ImVec2 checkboxPos2 = ImVec2(checkboxPos1.x + ImGui::GetFrameHeight(), checkboxPos1.y + ImGui::GetFrameHeight());
+
         ImGui::Checkbox(item.reference.GetId().c_str(), &item.isSelected);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) &&
+            ImGui::IsMouseHoveringRect(checkboxPos1, checkboxPos2) == false)
+        {
+            ImGui::OpenPopup(std::string("##ItemDescriptionPopup" + item.reference.GetId()).c_str());
+        }
+
+        if (ImGui::BeginPopup(std::string("##ItemDescriptionPopup" + item.reference.GetId()).c_str()))
+        {
+            ImVec2 popupPos = ImGui::GetMousePosOnOpeningCurrentPopup();
+            ImVec2 cursorPos = ImGui::GetMousePos();
+            if (cursorPos.x > popupPos.x + 100 || cursorPos.x < popupPos.x - 100 ||
+                cursorPos.y > popupPos.y + 20 || cursorPos.y < popupPos.y - 20 ||
+                ImGui::IsMouseHoveringRect(checkboxPos1, checkboxPos2, false) == true)
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::Text(item.reference.GetItem().GetDescription().c_str());
+
+            ImGui::EndPopup();
+        }
+
+        // Check if current row is clicked.
+        // Set highlighting box to start at top-left point of item frame.
+        checkboxPos1.x -= ImGui::GetStyle().ItemSpacing.x;
+        checkboxPos1.y -= ImGui::GetStyle().FramePadding.y;
+
+        // Set highlighting box to end at bottom-right of item frame.
+        ImVec2 endOfFrame = ImVec2(availWidth + checkboxPos1.x + ImGui::GetStyle().ItemSpacing.x,
+                                   checkboxPos1.y + ImGui::GetFrameHeightWithSpacing() +
+                                   ImGui::GetStyle().FramePadding.y + ImGui::GetStyle().ItemSpacing.y + 5);
+        if ((ImGui::IsMouseHoveringRect(checkboxPos1, endOfFrame, false) && itemClicked.empty()) &&
+            ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        {
+            itemClicked = item.reference.GetId();
+        }
+
+        // If this item is the one we clicked on:
+        if (item.reference.GetId() == itemClicked)
+        {
+            // If the left mouse button has been released:
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
+            {
+                // Drop the item.
+                itemClicked = "";
+            }
+            else
+            {
+                // Check if mouse is above the item.
+                if (ImGui::GetMousePos().y < checkboxPos1.y)
+                {
+                    item.reference.SetPosition(item.reference.GetPosition() - 1);
+                }
+                else if (ImGui::GetMousePos().y > endOfFrame.y)
+                {
+                    item.reference.SetPosition(item.reference.GetPosition() + 1);
+                }
+                ImGui::GetForegroundDrawList()->AddRectFilled(checkboxPos1, endOfFrame,
+                                                              ImGui::GetColorU32(ImGuiCol_ButtonActive, 0.3f));
+            }
+        }
+
         ImGui::NextColumn();
         float available = DB::Item::GetItemByID(item.reference.GetId()).GetQuantity();
         ImGui::Text("%0.2f %s", available, DB::Item::GetItemByID(item.reference.GetId()).GetUnit());
@@ -572,12 +676,17 @@ void HandlePopupOutputPickerInput()
     }
 
     ImGui::Combo("Created Item", &tmpSelectedOut, ids.data(), int(ids.size()));
-
+    ImGui::InputInt("Quantity of items made", &tmpQuantityMade);
+    if (tmpQuantityMade < 1)
+    {
+        tmpQuantityMade = 1;
+    }
 }
 
 void HandlePopupMake()
 {
-    std::string txt = "Make " + tmpBom.GetName().substr(0, 10) + "?";
+    std::string txt = "Make " + StringUtils::NumToString(tmpBom.GetRawOutput().GetQuantity()) + " " +
+        tmpBom.GetName().substr(0, 10) + "?";
     std::string bold = "Bold";
     Popup::TextStylized(txt, bold, true);
     ImGui::Text("Items needed to make product:");
@@ -633,7 +742,7 @@ bool HandlePopupMakeButton(const std::string& label)
     }
     if (l == "Make")
     {
-        l += " (" + StringUtils::NumToString(tmpQuantityToMake, false) + ")";
+        l += " (" + StringUtils::NumToString(tmpQuantityToMake * int(tmpBom.GetRawOutput().GetQuantity()), false) + ")";
     }
     if (ImGui::Button(l.c_str()) && (l.find("Make") == std::string::npos || isMakeValid == true))
     {

@@ -36,8 +36,8 @@ namespace Popup
 
 /*****************************************************************************/
 /* Exported functions */
-void Init(std::string name = "Popup", bool showCloseButton = true);
-void Init(std::string name, std::function<void()> onCloseEvent);
+void Init(std::string name = "Popup", bool showCloseButton = true, ImVec2 size = ImVec2(400, 300));
+void Init(std::string name, std::function<void()> onCloseEvent, ImVec2 size = ImVec2(400, 300));
 bool IsOpen();
 void Render();
 void AddCall(std::function<void()> func);
@@ -46,8 +46,8 @@ void AddCall(std::function<void(std::string&)> func, std::string arg);
 void AddCall(std::function<bool(std::string&)> func, std::string arg);
 void AddCall(std::function<bool(std::string&)> func, std::string arg, std::function<void()> cb, bool closeOnCb = false);
 void AddCall(std::function<void(std::string&, std::string&, bool)>,
-             std::string txt = "",
-             std::string arg1 = "",
+             std::string txt,
+             std::string arg1,
              bool arg2 = false);
 
 void Text(std::string& txt);

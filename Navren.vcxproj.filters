@@ -2321,6 +2321,9 @@
     <ClInclude Include="src\utils\FilterUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Dependencies\GLEW\bin\Release\x64\glew32.dll" />

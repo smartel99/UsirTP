@@ -15,11 +15,11 @@ FilterUtils::FilterHandler::FilterHandler(const std::vector<std::string>& catego
     m_selectedCategory = 0;
 }
 
-template<> bool FilterHandler::CheckMatch<DB::Item::Item>(const DB::Item::Item& item)
+template<> bool FilterHandler::CheckMatch<DB::Item::Item>(const DB::Item::Item& item, int category)
 {
     std::string filterText = m_filterText;
     boost::to_upper(filterText);
-    switch (m_selectedCategory)
+    switch (category == -1 ? m_selectedCategory : category)
     {
         case 0:     // ID.
         {
@@ -80,11 +80,11 @@ template<> bool FilterHandler::CheckMatch<DB::Item::Item>(const DB::Item::Item& 
     }
 }
 
-template<> bool FilterHandler::CheckMatch<DB::BOM::BOM>(const DB::BOM::BOM& item)
+template<> bool FilterHandler::CheckMatch<DB::BOM::BOM>(const DB::BOM::BOM& item, int category)
 {
     std::string filterText = m_filterText;
     boost::to_upper(filterText);
-    switch (m_selectedCategory)
+    switch (category == -1 ? m_selectedCategory : category)
     {
         case 0:     // ID.
         {
