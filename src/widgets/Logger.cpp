@@ -83,7 +83,7 @@ void Logger::Draw(const char* title)
     ImGui::SameLine();
 
     bool copy = false;
-    if (hitCount == 6 && Fonts::Push("Blazed") == Fonts::FONT_OK)
+    if (hitCount == 6 && Fonts::Push("Blazed") == Fonts::FontStatus::FONT_OK)
     {
         copy = ImGui::Button("Let's go!");
         Fonts::Pop();

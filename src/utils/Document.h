@@ -166,8 +166,8 @@ private:
  */
 namespace File
 {
-HRESULT OpenFile(std::wstring& filePath, FileTypeEnum_t type = INDEX_DEFAULT, LPCWSTR ext = L".*");
-HRESULT SaveFile(std::wstring& filePath, FileTypeEnum_t type = INDEX_DEFAULT, LPCWSTR ext = L".*");
+HRESULT OpenFile(std::wstring& filePath, FileType type = FileType::INDEX_DEFAULT, LPCWSTR ext = L".*");
+HRESULT SaveFile(std::wstring& filePath, FileType type = FileType::INDEX_DEFAULT, LPCWSTR ext = L".*");
 DWORD GetCurrentPath(std::string& path);
 std::string GetCurrentPath();
 std::string GetPathOfFile(const std::string& file);

@@ -29,11 +29,11 @@ const COMDLG_FILTERSPEC c_rgSaveTypes[] =
 };
 
 // Indices of file types.
-enum class FileType
 /**
  * @enum FileTypeEnum_t
  * @brief   Indexes of each file type in c_rgSaveType.
  */
+enum class FileType
 {
     INDEX_SCRIPT = 1,   /**< Index of *.S files */
     INDEX_EXE,          /**< Index of *.exe files */
@@ -41,7 +41,7 @@ enum class FileType
     INDEX_LOG,          /**< Index of *.log files */
     INDEX_CSV,          /**< Index of *.csv files */
     INDEX_DEFAULT       /**< Index of *.* files */
-}
+};
 
 // Controls.
 #define CONTROL_GROUP           2000

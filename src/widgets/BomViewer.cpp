@@ -12,31 +12,68 @@
 #include <iostream>
 #include <fstream>
 
+/**
+ * @def     MAX_INPUT_LENGHT
+ * @brief   Maximum length of user input text.
+ */
+#define MAX_INPUT_LENGTH    400
 
-#define MAX_INPUT_LENGHT    400
+/**
+ * @def    SORT_ASCEND
+ * @brief  Text to display when sorting in ascending order.
+ */
 #define SORT_ASCEND         "(A to Z)"
+
+/**
+ * @def    SORT_DESCEND
+ * @brief  Text to display when sorting in descending order.
+ */
 #define SORT_DESCEND        "(Z to A)"
+
+/**
+ * @def    SORT_TXT
+ * @brief  Determine if the text that should be displayed should be `SORT_ASCEND` or `SORT_DESCEND`
+ */
 #define SORT_TXT(x)         (sort == SortBy::x ? SORT_ASCEND : (sort == SortBy::r ## x ? SORT_DESCEND : " "))
+
+/**
+ * @def    IS_SORT_ACTIVE
+ * @brief  Check if `x` is the current method of sorting.
+ */
 #define IS_SORT_ACTIVE(x)   (( sort == SortBy::x ) || ( sort == SortBy::r ## x ))
 
+/**
+ * @enum    SortBy
+ * @brief   The possible ways to sort by.
+ */
 enum class SortBy
 {
-    id = 0,
-    rid,
-    name,
-    rname
+    id = 0, /**< Sort by ID in ascending order */
+    rid,    /**< Sort by ID in descending order */
+    name,   /**< Sort by name in ascending order */
+    rname   /**< Sort by name in descending order */
 };
 
+/**
+ * @class ItemRef
+ * @brief A class representing an active, more complete reference of a `DB::Item::Item`
+ */
 class ItemRef
 {
 public:
+    /**
+     * @brief   Default (and only) constructor of the class.
+     * @param   items: A reference to a `DB::BOM::ItemReference` object that is to be bound with the object.
+     * @param   selected: A bool that indicates if the `ItemRef` is part of the BOM or not.
+     * @retval  The new instance of ItemRef.
+     */
     ItemRef(const DB::BOM::ItemReference& items, bool selected) :
         reference(items), isSelected(selected)
     {
     }
-    DB::BOM::ItemReference reference;
-    bool isSelected = false;
-    float quantity = 0.0f;
+    DB::BOM::ItemReference reference;   /**< The Item that `this` represents */
+    bool isSelected = false;            /**< Is that item part of the BOM */
+    float quantity = 0.0f;              /**< The quantity `reference` needed by the BOM to make it */
 };
 
 static void RenderAddWindow();
@@ -61,84 +98,155 @@ static bool HandlePopupMakeButton(const std::string& label);
 static void ExportItems();
 static void OpenOutputFile();
 
+//! The BOM currently being worked with.
 static DB::BOM::BOM tmpBom;
+
+//! The list of Items of the BOM currently being worked with.
 static std::vector<ItemRef> tmpItems;
+
+//! The output Item of the BOM currently being worked with.
 static DB::BOM::ItemReference tmpOutput;
+
+//! The index of the currently selected `tmpOutput`.
 static int tmpSelectedOut = 0;
-static char tmpName[MAX_INPUT_LENGHT];
+
+//! The input buffer for the name of the BOM currently being worked with.
+static char tmpName[MAX_INPUT_LENGTH];
+
+//! The quantity of BOM items to make for the BOM currently being worked with.
 static int tmpQuantityMade = 1;
+
+//! The quantity of Items that are produced by the BOM currently being worked with.
 static int tmpQuantityToMake = 1;
+
+//! Flag that indicates if the `Add BOM` window should be rendered.
 static bool isAddOpen = false;
+
+//! Flag that indicates if the `edit` window is open.
 static bool isEditOpen = false;
+
+//! Flag that indicates if the BOM currently being worked with can be made.
 static bool isMakeValid = false;
+
+//! The path of the file in which to export the data.
 static std::wstring tmpOutputFilePath = L"";
 
+//! Object that handles all filtering functionalities for the items.
 static FilterUtils::FilterHandler itemFilter;
 
+//! All the BOM categories that can be used to filter BOMs with.
 const static std::vector<std::string> cats = { "ID", "Description", "Output ID" };
+
+//! Object that handles all filtering functionalities for the BOMs.
 static FilterUtils::FilterHandler filter(cats);
 
+/**
+ * @brief   Main rendering task of the module.
+ *          It takes care of:
+ *              - Displaying the filter input menu
+ *              - Displaying every BOMs in the cache
+ *              - Refreshing the BOM cache
+ *              - Adding, Editing and Deleting BOMs
+ *              - Rendering the Adding, the Editing and the Deleting windows/pop ups.
+ * @param   None
+ * @retval  None
+ */
 void BomViewer::Render()
 {
-    static bool isDeleteOpen = false;
-    static bool isEditPending = false;
+    static bool isDeleteOpen = false;   /**< Should the `delete` button be drawn? */
+    static bool isEditPending = false;  /**< Should the `edit` button be drawn? */
 
+    // Change the frame's background to be of a semi light gray color.
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.39f, 0.39f, 0.39f, 0.5859375f));
+
+    // Call the handler in charge of refreshing the BOMs's cache
     DB::BOM::Refresh();
 
+    // If the `Add BOM` window should be rendered:
     if (isAddOpen == true)
     {
+        // Render it.
         RenderAddWindow();
     }
-    if (isEditOpen == true)
+    // If the `Edit BOM` window should be rendered:
+    else if (isEditOpen == true)
     {
+        // Render it.
         RenderEditWindow();
     }
 
+    // Create 3 columns with no ImGui ID and no border lines.
     ImGui::Columns(3, nullptr, false);
+
+    // Set the width of the 1st column (the left one) to be 75% of its original size.
     const static float w1 = ImGui::GetColumnWidth(-1) * 0.75f;
     ImGui::SetColumnWidth(-1, w1);
 
-#pragma region Control Buttons
-    // Only show buttons if user has admin rights.
+/**
+ * This region handles the `Add`/`Edit`/`Delete` buttons, the filter bar and the `Export` button.
+ */
+#pragma region Controls
+    // Only show buttons if user has readWrite rights.
     if (DB::HasUserWritePrivileges())
     {
+        // If the `Add` button has been clicked by the user:
         if (ImGui::Button("Add"))
         {
+            // Set the flag so that the `Add BOM` window is rendered.
             isAddOpen = true;
+            // Set everything up so that the `Add BOM` window is read for the next frame.
             MakeNewPopup();
         }
+        // On the same line as the `Add` button.
         ImGui::SameLine();
+        // If the `Edit` button has been clicked by the user:
         if (ImGui::Button("Edit"))
         {
+            // Toggle the state of the flag.
             isEditPending = !isEditPending;
+            // Set the `Delete` flag to false to overwrite its state.
             isDeleteOpen = false;
         }
+        // On the same line as the `Edit` button.
         ImGui::SameLine();
+        // If the `Delete` button has been clicked by the user:
         if (ImGui::Button("Delete"))
         {
+            // Toggle the state of the flag.
             isDeleteOpen = !isDeleteOpen;
+            // Set the `Edit` flag to false to overwrite its state.
             isEditOpen = false;
         }
     }
-#pragma endregion
 
+    // Move to the next column.
     ImGui::NextColumn();
+    // Set the width of the second column (the center one) to be 150% of its original size.
     const static float w2 = ImGui::GetColumnWidth(-1) * 1.5f;
     ImGui::SetColumnWidth(-1, w2);
+
+    // Render the filter.
     filter.Render();
+    // Move to the next column.
     ImGui::NextColumn();
+    // If the `Export` button has been clicked by the user:
     if (ImGui::Button("Export"))
     {
+        // Export the currently displayed BOMs.
         ExportItems();
     }
+    // Move to the next column.
     ImGui::NextColumn();
+    // Creates a single column to align everything up.
     ImGui::Columns(1);
+#pragma endregion
 
-
+    // Create a child frame that spans all the remaining available space in the parent frame.
     ImGui::BeginChildFrame(ImGui::GetID("BomViewerChildFrame"), ImVec2());
+    // Pop the gray color we've pushed on the ImGui stack earlier.
     ImGui::PopStyleColor();
 
+    // Flag that stores how we should sort the list of BOMs.
     static SortBy sort = SortBy::id;
 
 #pragma region Header
@@ -389,7 +497,8 @@ static void MakeNewPopup()
     std::vector<DB::Item::Item> items = DB::Item::GetAll();
     for (auto& i : items)
     {
-        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(), i.GetQuantity(), tmpItems.size()),
+        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
+                                                             i.GetQuantity(), int(tmpItems.size())),
                                       false));
     }
     tmpSelectedOut = 0;
@@ -402,7 +511,8 @@ static void MakeEditPopup(bool isRetry)
     std::vector<DB::Item::Item> items = DB::Item::GetAll();
     for (auto& i : items)
     {
-        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(), i.GetQuantity(), tmpItems.size()),
+        tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
+                                                             i.GetQuantity(), int(tmpItems.size())),
                                       false));
         auto it = std::find_if(tmpBom.GetRawItems().begin(),
                                tmpBom.GetRawItems().end(),
@@ -782,7 +892,7 @@ void ExportItems()
 
     // Make the user select the desired output file.
     tmpOutputFilePath = L"";
-    File::SaveFile(tmpOutputFilePath, INDEX_CSV, L"*.csv");
+    File::SaveFile(tmpOutputFilePath, FileType::INDEX_CSV, L"*.csv");
 
     std::ofstream outputFile;
     outputFile.open(tmpOutputFilePath);

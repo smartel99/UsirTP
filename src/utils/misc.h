@@ -3,7 +3,7 @@
  * @addtogroup misc
  * @{
  * @file    misc
- * @author  Client Microdata
+ * @author  Samuel Martel
  * @brief   Header for the misc module.
  *
  * @date 1/17/2020 11:41:21 AM
@@ -19,6 +19,8 @@
 
 /*****************************************************************************/
 /* Exported defines */
+
+//! Just a macro that gets the smallest of the two values.
 #define MIN(x, y)   (((x)<(y))?(x):(y))
 
 /*****************************************************************************/

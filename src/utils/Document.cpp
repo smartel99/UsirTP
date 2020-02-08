@@ -208,7 +208,7 @@ HRESULT OpenFile(std::wstring& filePath, FileType type, LPCWSTR ext)
                     if (SUCCEEDED(hr))
                     {
                         // Set the selected file type index to Script.
-                        hr = pfd->SetFileTypeIndex(type);
+                        hr = pfd->SetFileTypeIndex(UINT(type));
                         if (SUCCEEDED(hr))
                         {
                             // Set the default extension to be ".s"
@@ -252,7 +252,19 @@ HRESULT OpenFile(std::wstring& filePath, FileType type, LPCWSTR ext)
     return hr;
 }
 
-HRESULT SaveFile(std::wstring& filePath, FileTypeEnum_t type, LPCWSTR ext)
+/**
+ * @brief   Open a file dialog made by the OS and let the user select a file to be used for the save operation.
+ * @param   filePath: A reference to a `std::wstring` in which the chosen file's path will be stored.
+ * @param   type: The default type of files to display in the dialog.
+ * @param   ext: A const wchar* containing the default extension of the files to display by default.
+ * @retval  The `HRESULT` of the operation.
+ *
+ * @note    This function is copied from an example provided by Microsoft, thus the abnormal structure.
+ *          The comments are also copied from that example.
+ *
+ * @note    To construct a `LPCWSTR`, you can do `L"My LPCWSTR"`.
+ */
+HRESULT SaveFile(std::wstring& filePath, FileType type, LPCWSTR ext)
 {
     // CoCreate the File Open Dialog object.
     IFileDialog* pfd = nullptr;
@@ -284,7 +296,7 @@ HRESULT SaveFile(std::wstring& filePath, FileTypeEnum_t type, LPCWSTR ext)
                     if (SUCCEEDED(hr))
                     {
                         // Set the selected file type index to Script.
-                        hr = pfd->SetFileTypeIndex(type);
+                        hr = pfd->SetFileTypeIndex(UINT(type));
                         if (SUCCEEDED(hr))
                         {
                             // Set the default extension to be ".s"
@@ -328,38 +340,73 @@ HRESULT SaveFile(std::wstring& filePath, FileTypeEnum_t type, LPCWSTR ext)
     return hr;
 }
 
+/**
+ * @brief   Get the path from which the program is currently running.
+ *          This is the path where `UsirTP.exe` is being run from.
+ * @param   path: A reference to a string in which the path will be stored.
+ * @reval   The number of characters in `path`.
+ */
 DWORD GetCurrentPath(std::string& path)
 {
-    char lpFilename[MAX_PATH];
     // MAX_PATH -> The maximum length for a path defined by the Windows API.
+    char lpFilename[MAX_PATH];
+    // Get the complete file name (path + file name) of the program.
     DWORD nSize = GetModuleFileNameA(nullptr, lpFilename, MAX_PATH);
     path = lpFilename;
     return nSize;
 }
 
+/**
+ * @brief   Get the path from which the program is currently running from,
+ *          with the name of the executable removed.
+ * @param   None
+ * @retval  The path.
+ */
 std::string GetCurrentPath()
 {
     std::string path = "";
+    // Get the complete path.
     GetCurrentPath(path);
+    // Remove the name of the exe from that path.
     return StringUtils::RemoveNameFromPath(path);
 }
 
+/**
+ * @brief   Create an absolute path for `file` by using the current path.
+ * @param   file: The relative path of the desired file. This will be concatenated to the current path.
+ * @retval  The absolute path of the file
+ *
+ * @note    This function only generates an absolute path. It is up to the caller to check if
+ *          that path is valid.
+ */
 std::string GetPathOfFile(const std::string& file)
 {
     std::string path = "";
 
+    // Get the current path.
     GetCurrentPath(path);
 
+    // Remove the name of the exe from the path.
     path = StringUtils::RemoveNameFromPath(path);
+    // Concatenate `file` to the path.
     return path + file;
 }
 
+/**
+ * @brief   Check if a file is empty.
+ * @param   pFile: A file stream of the file to check.
+ * @retval  `true` if the file is empty, `false` otherwise.
+ */
 bool IsEmpty(std::fstream& pFile)
 {
     return pFile.peek() == std::ifstream::traits_type::eof();
 }
 
-
+/**
+ * @struct  path_lead_string
+ * @brief   Struct that does something with a path, I honestly don't remember what.
+ *          It wouldn't be hard for you to check out what `directory_entry` is though ;)
+ */
 struct path_leaf_string
 {
     std::string operator()(const std::filesystem::directory_entry& entry) const
@@ -368,6 +415,11 @@ struct path_leaf_string
     }
 };
 
+/**
+ * @brief   Get all the files contained in a directory and its directories.
+ * @param   dirPath: The directory to get the files from.
+ * @retval  A `std::vector<std::string>` containing all the files found.
+ */
 std::vector<std::string> GetFilesInDir(const std::string& dirPath)
 {
     std::vector<std::string> files;
@@ -375,6 +427,12 @@ std::vector<std::string> GetFilesInDir(const std::string& dirPath)
     return files;
 }
 
+/**
+ * @brief   Get all the files contained in a directory and its directories.
+ * @param   dirPath: The directory to get the files from.
+ * @param   files: A reference where all the files found will be stored.
+ * @retval  None
+ */
 void GetFilesInDir(const std::string& dirPath, std::vector<std::string>& files)
 {
     std::filesystem::path p(dirPath);
