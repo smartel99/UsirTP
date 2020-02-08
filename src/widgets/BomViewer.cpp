@@ -78,6 +78,7 @@ public:
 
 static void RenderAddWindow();
 static void RenderEditWindow();
+static void RenderItemPopup(std::string& p, DB::BOM::BOM& bom);
 static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms);
 static void MakeNewPopup();
 static void MakeEditPopup(bool isRetry = false);
@@ -249,144 +250,201 @@ void BomViewer::Render()
     // Flag that stores how we should sort the list of BOMs.
     static SortBy sort = SortBy::id;
 
+/**
+ * This region handles the headers for the tab and the sorting of the BOMs as well.
+ */
 #pragma region Header
+    // Create 4 columns, no ImGui ID, with borders.
     ImGui::Columns(4);
+//! This region handles the ID header.
 #pragma region ID
+    // Overwrite the frame background color to be 0x00000000 (transparent).
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
+    // Create a child frame that spans all the available width of the column and is as tall as the font is.
     ImGui::BeginChildFrame(ImGui::GetID("##BomIdChildFrame"), ImVec2(0, ImGui::GetFrameHeight()));
+    // Return the frame background color to its original state.
     ImGui::PopStyleColor();
+
+    // Create 2 columns, no ImGui ID, no borders.
     ImGui::Columns(2, nullptr, false);
+
+    // If the `ID` cell has been clicked on by the user:
     if (ImGui::Selectable("ID", IS_SORT_ACTIVE(id), ImGuiSelectableFlags_SpanAllColumns))
     {
+        // Toggle the sort by ID (ascend or descend)
         sort = sort == SortBy::id ? SortBy::rid : SortBy::id;
     }
+    // Move to the next column.
     ImGui::NextColumn();
+    // If we're sorting by ID, display `SORT_ASCEND` or `SORT_DESCEND`, depending on the direction.
     ImGui::Text(SORT_TXT(id));
+    // Move to the next column.
     ImGui::NextColumn();
+    // Create one empty column for the alignment.
     ImGui::Columns(1);
+    // End the ID child frame.
     ImGui::EndChildFrame();
+    // Move to the next column.
     ImGui::NextColumn();
 #pragma endregion ID
 
+//! This region handles the Name header.
 #pragma region Name
+    // Overwrite the frame background color to be transparent.
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
+    // Create a child frame that spans the entire width of the column and is as tall as the font is.
     ImGui::BeginChildFrame(ImGui::GetID("##BomNameChildFrame"), ImVec2(0, ImGui::GetFrameHeight()));
+    // Reset the frame background color to its original state.
     ImGui::PopStyleColor();
+
+    // Create 2 columns, no ImGui ID, no borders.
     ImGui::Columns(2, nullptr, false);
+
+    // If the Name cell has been clicked on by the user:
     if (ImGui::Selectable("Name", IS_SORT_ACTIVE(name), ImGuiSelectableFlags_SpanAllColumns))
     {
+        // Toggle the sort by name (ascend or descend).
         sort = sort == SortBy::name ? SortBy::rname : SortBy::name;
     }
+
+    // Move to the next column.
     ImGui::NextColumn();
+    // If we're sorting by Name, display `SORT_ASCEND` or `SORT_DESCEND`, depending on the direction.
     ImGui::Text(SORT_TXT(name));
+    // Move to the next column.
     ImGui::NextColumn();
+    // Create an empty column for alignment.
     ImGui::Columns(1);
+    // End the Name child frame.
     ImGui::EndChildFrame();
+    // Move to the next column.
     ImGui::NextColumn();
 #pragma endregion Name
 
+//! This region handles the Output header.
 #pragma region Output
+    // Overwrite the frame background, the header hovered and the header active colors to be all transparent.
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
     ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4());
     ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4());
+    // Create a child frame that spans all the available width and is as high as the font is.
     ImGui::BeginChildFrame(ImGui::GetID("##BomOutputChildFrame"), ImVec2(0, ImGui::GetFrameHeight()));
+    // Display the label text.
+    // An `ImBui::Selectable` is used here in place of `ImGui::Text` 
+    // to be visually consistent with `ID` and `Name`.
     ImGui::Selectable("Output Item");
+    // End the Output child frame.
     ImGui::EndChildFrame();
+    // Move to the next column.
     ImGui::NextColumn();
+    // We don't restore the colors we've changed yet because we still want to use them for the next header.
 #pragma endregion Output
 
+//! This region handles the Items header.
 #pragma region Items
+    // Create a child frame that spans all the available width and is as high as the font is.
     ImGui::BeginChildFrame(ImGui::GetID("##BomItemsChildFrame"), ImVec2(0, ImGui::GetFrameHeight()));
+    // Display the label text.
+    // An `ImBui::Selectable` is used here in place of `ImGui::Text` 
+    // to be visually consistent with `ID` and `Name`.
     ImGui::Selectable("Items");
+    // End the Items child frame.
     ImGui::EndChildFrame();
+    // Restore the frame background, header hovered and header active colors to their original ones.
     ImGui::PopStyleColor(3);
+    // Move to the next column.
     ImGui::NextColumn();
 #pragma endregion Items
 
 #pragma endregion Header
 
+    // Fetches all the BOMs from the cache.
     std::vector<DB::BOM::BOM> boms = DB::BOM::GetAll();
+    // Sort the BOMs with the appropriate sorting.
     SortItems(sort, boms);
 
+//! This region handles the rendering of the BOMs
 #pragma region Content
+    // For each BOM in the list:
     for (auto& bom : boms)
     {
+        // Draw an horizontal line.
         ImGui::Separator();
+        // If we're in edit mode:
         if (isEditPending == true)
         {
+            // Add a small button next to the BOM's ID.
             std::string l = "Edit##" + bom.GetId();
+            // If that small button has been clicked on by the user:
             if (ImGui::SmallButton(l.c_str()))
             {
+                // Render the edit menu on the next frame.
                 isEditOpen = true;
+                // Exit edit mode.
                 isEditPending = false;
+                // Set the temporary BOM to the current one.
                 tmpBom = bom;
+                // Set everything up for the next frame.
                 MakeEditPopup();
             }
             ImGui::SameLine();
         }
+        // If we're in delete mode:
         else if (isDeleteOpen == true)
         {
+            // Add a small button next to the BOM's ID.
             std::string l = "Delete##" + bom.GetId();
+            // If that small button has been clicked on by the user:
             if (ImGui::SmallButton(l.c_str()))
             {
+                // Exit delete mode.
                 isDeleteOpen = false;
+                // Set the temporary BOM to the current one.
                 tmpBom = bom;
+                // Set everything up for the next frame.
                 MakeDeletePopup();
             }
             ImGui::SameLine();
         }
 
+        // If the user has clicked on the BOM's ID:
+        // Clicking on a BOM's ID opens a cost preview window.
         if (ImGui::Selectable(std::string(bom.GetId() + "##selectable").c_str(), false))
         {
+            // Set the BOM to the current one.
             tmpBom = bom;
+            // Set everything up for the next frame.
             MakeMakePopup();
         }
+
+        // Move to the next column.
         ImGui::NextColumn();
 
+        // Display the name of the BOM.
         ImGui::Text(bom.GetName().c_str());
+        // Move to the next column.
         ImGui::NextColumn();
 
+        // Display the ID of the BOM's output Item.
         ImGui::Text(bom.GetRawOutput().GetId().c_str());
+        // Move to the next column.
         ImGui::NextColumn();
 
+        // Create a unique label ID for this BOM.
         std::string l = "Click to view##" + bom.GetId();
+        // Create a unique pop up ID from the above label.
         std::string p = l + "pop up";
+        // If the user has clicked on the "Click to view" field:
         if (ImGui::Selectable(l.c_str()))
         {
+            // Open the pop up.
             ImGui::OpenPopup(p.c_str());
         }
-        if (ImGui::BeginPopup(p.c_str(), ImGuiWindowFlags_AlwaysAutoResize))
-        {
-            ImGui::Dummy(ImVec2(400.f, 0.1f));
-            std::vector<DB::BOM::ItemReference> its = bom.GetRawItems();
-            ImGui::Columns(3);
-            Fonts::Push("Bold");
-            ImGui::Text("Item ID");
-            ImGui::NextColumn();
-            ImGui::Text("Description");
-            ImGui::NextColumn();
-            ImGui::Text("Qty Needed");
-            Fonts::Pop();
-            ImGui::NextColumn();
 
-            for (auto& it : its)
-            {
-                ImGui::Separator();
-                ImGui::Text(it.GetId().c_str());
-                ImGui::NextColumn();
-                std::string d = it.GetItem().GetDescription().substr(0, 15) + "...";
-                ImGui::Text(d.c_str());
-                ImGui::NextColumn();
-                ImGui::Text("%0.2f", it.GetQuantity());
-                ImGui::NextColumn();
-            }
-            ImGui::Columns(1);
-            ImGui::Separator();
+        // If needed, render the pop up.
+        RenderItemPopup(p, bom);
 
-            ImGui::Text("Makes %0.2f %s", bom.GetRawOutput().GetQuantity(), bom.GetOutput().GetUnit());
-
-            ImGui::EndPopup();
-        }
+        // Move on to the next line.
         ImGui::NextColumn();
     }
 #pragma endregion Content
@@ -394,58 +452,159 @@ void BomViewer::Render()
     ImGui::EndChildFrame();
 }
 
+/**
+ * @brief   Handles the rendering of the `Add BOM` window.
+ * @param   None
+ * @retval  None
+ */
 void RenderAddWindow()
 {
+    // Set the size of the next window to 800x700 when it first appears.
     ImGui::SetNextWindowSize(ImVec2(800, 700), ImGuiCond_Appearing);
+    // Create the `Add BOM` window.
     if (ImGui::Begin("Add new BOM"))
     {
-
+        // Handle the user's input for the BOM's name/description.
         HandlePopupNameInput();
+        // Handle the user's input for the BOM's Items (the ingredients of the BOM).
         HandlePopupItemPickerInput();
+        // Handle the user's input for the BOM's output Item.
         HandlePopupOutputPickerInput();
 
+        // If the `Accept` button has been clicked on by the user:
         if (ImGui::Button("Accept"))
         {
+            // Save the newly created BOM.
             SaveNewBom();
         }
         ImGui::SameLine();
+        // If the `Cancel` button has been clicked on by the user:
         if (ImGui::Button("Cancel"))
         {
+            // Clear all temporary variables.
             CancelAction();
         }
 
+        // End the `Add BOM` window.
         ImGui::End();
     }
 }
 
+/**
+ * @brief   Handles the rendering of the `Edit BOM` window.
+ * @param   None
+ * @retval  None
+ */
 void RenderEditWindow()
 {
+    // Set the size of the next window to 800x700 when it first appears.
     ImGui::SetNextWindowSize(ImVec2(800, 700), ImGuiCond_Appearing);
+    // Create the `Edit BOM` window.
     if (ImGui::Begin("Edit BOM"))
     {
-
+        // Handle the user's input for the BOM's name/description.
         HandlePopupNameInput();
+        // Handle the user's input for the BOM's Items (the ingredients of the BOM).
         HandlePopupItemPickerInput();
+        // Handle the user's input for the BOM's output Item.
         HandlePopupOutputPickerInput();
 
+        // If the `Accept` button has been clicked on by the user:
         if (ImGui::Button("Accept"))
         {
-            SaveEditedBom();
+            // Save the newly created BOM.
+            SaveNewBom();
         }
         ImGui::SameLine();
+        // If the `Cancel` button has been clicked on by the user:
         if (ImGui::Button("Cancel"))
         {
+            // Clear all temporary variables.
             CancelAction();
         }
 
+        // End of the `Edit BOM` window.
         ImGui::End();
     }
 }
 
+/**
+ * @brief   Render a pop up that contains a list of all the Items needed by a BOM, if that pop up is open.
+ * @param   p: The name and ID of the pop up unique to this `bom`.
+ * @param   bom: The BOM object to display the Items from.
+ * @retval  None
+ */
+void RenderItemPopup(std::string& p, DB::BOM::BOM& bom)
+{
+    // If the pop up should be drawn:
+    if (ImGui::BeginPopup(p.c_str(), ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        // Forces the popup to be 400 pixels wide with a dummy object.
+        ImGui::Dummy(ImVec2(400.f, 0.1f));
+        // Get a list of all the items in the BOM.
+        std::vector<DB::BOM::ItemReference> its = bom.GetRawItems();
+        // Create 3 columns, no ImGui ID, with borders.
+        ImGui::Columns(3);
+
+        // Overwrite the default text font with a bold one.
+        Fonts::Push("Bold");
+        // Render the headers.
+        ImGui::Text("Item ID");
+        ImGui::NextColumn();
+        ImGui::Text("Description");
+        ImGui::NextColumn();
+        ImGui::Text("Qty Needed");
+        // Restore the text font to its default state.
+        Fonts::Pop();
+
+        // Move to the next line.
+        ImGui::NextColumn();
+
+        // For each Item in the BOM:
+        for (auto& it : its)
+        {
+            // Draw an horizontal line.
+            ImGui::Separator();
+            // Display the Item's ID.
+            ImGui::Text(it.GetId().c_str());
+            // Move on to the next column.
+            ImGui::NextColumn();
+            // Display the Item's description.
+            std::string d = it.GetItem().GetDescription().substr(0, 15) + "...";
+            ImGui::Text(d.c_str());
+            // Move on to the next column.
+            ImGui::NextColumn();
+            // Display the quantity needed.
+            ImGui::Text("%0.2f", it.GetQuantity());
+            // Move on to the next line.
+            ImGui::NextColumn();
+        }
+        // Create an empty column for alignment.
+        ImGui::Columns(1);
+        // Add an horizontal line.
+        ImGui::Separator();
+
+        // Display how many items the BOM creates when made.
+        ImGui::Text("Makes %0.2f %s", bom.GetRawOutput().GetQuantity(), bom.GetOutput().GetUnit());
+
+        // End the pop up.
+        ImGui::EndPopup();
+    }
+}
+
+/**
+ * @brief   Sort a list of BOMs with a specific sorting term.
+ * @param   sort: By what to sort the list.
+ * @param   boms: The list of BOMs to sort.
+ * @retval  None
+ *
+ * @note    The list of BOMs is sorted in place, not in a copy.
+ */
 static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms)
 {
     switch (sort)
     {
+        // If they should be sorted by their IDs in ascending order:
         case SortBy::id:
             std::sort(boms.begin(), boms.end(), [](DB::BOM::BOM& a, DB::BOM::BOM& b)
                       {
@@ -456,6 +615,7 @@ static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms)
                           return(sa.compare(sb.c_str()) <= 0 ? true : false);
                       });
             break;
+        // If they should be sorted by their IDs in descending order:
         case SortBy::rid:
             std::sort(boms.begin(), boms.end(), [](DB::BOM::BOM& a, DB::BOM::BOM& b)
                       {
@@ -466,6 +626,7 @@ static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms)
                           return(sa.compare(sb.c_str()) > 0 ? true : false);
                       });
             break;
+        // If they should be sorted by their names in ascending order:
         case SortBy::name:
             std::sort(boms.begin(), boms.end(), [](DB::BOM::BOM& a, DB::BOM::BOM& b)
                       {
@@ -476,6 +637,7 @@ static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms)
                           return(sa.compare(sb.c_str()) <= 0 ? true : false);
                       });
             break;
+        // If they should be sorted by their IDs in descending order:
         case SortBy::rname:
             std::sort(boms.begin(), boms.end(), [](DB::BOM::BOM& a, DB::BOM::BOM& b)
                       {
@@ -492,28 +654,52 @@ static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms)
     }
 }
 
+/**
+ * @brief   Initialize all the temporary variables in order to let the user make a new BOM.
+ * @param   None
+ * @retval  None
+ */
 static void MakeNewPopup()
 {
+    // Get all the existing Items in the cache.
     std::vector<DB::Item::Item> items = DB::Item::GetAll();
+    // For each Item in the cache:
     for (auto& i : items)
     {
+        // Create an ItemRef out of the Item and add it to the temporary list.
         tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
                                                              i.GetQuantity(), int(tmpItems.size())),
                                       false));
     }
+    // The user hasn't selected any output Item.
     tmpSelectedOut = 0;
+    // The user hasn't set an output quantity. 
     tmpQuantityMade = 0;
+    // The user hasn't entered any text in the filter box.
     itemFilter.ClearText();
 }
 
+/**
+ * @brief   Initialize all the temporary variables in order to let the user edit an existing BOM.
+ *          If `isRetry` is set, "Unable to save BOM" will be shown in red.
+ * @param   isRetry: Set this flag if a previous attempt at creating/editing a BOM failed.
+ * @retval  None
+ *
+ * @todo    isRetry is not used in this function, update it to remove isRetry.
+ * #refactor
+ */
 static void MakeEditPopup(bool isRetry)
 {
+    // Get all of the Items that are in the cache.
     std::vector<DB::Item::Item> items = DB::Item::GetAll();
+    // For each Item in the cache:
     for (auto& i : items)
     {
+        // Create an ItemRef object from that Item and add it to the temporary list.
         tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
                                                              i.GetQuantity(), int(tmpItems.size())),
                                       false));
+        // Check if that Item is one that is already part of the BOM's Item list.
         auto it = std::find_if(tmpBom.GetRawItems().begin(),
                                tmpBom.GetRawItems().end(),
                                [i](const DB::BOM::ItemReference& obj)
@@ -521,29 +707,41 @@ static void MakeEditPopup(bool isRetry)
                                    return obj.GetId() == i.GetId();
                                });
 
+        // If it is:
         if (it != tmpBom.GetRawItems().end())
         {
+            // Update the ItemRef to take the values of the Item in the BOM's Item list.
             tmpItems.back().isSelected = true;
             tmpItems.back().quantity = it->GetQuantity();
             tmpItems.back().reference.SetPosition(it->GetPosition());
         }
     }
+
+    // Fetch the output Item from the BOM.
     tmpOutput = tmpBom.GetRawOutput();
+
+    // Make sure that the Item still exists.
     auto it = std::find_if(tmpItems.begin(), tmpItems.end(),
                            [](ItemRef& i)
                            {
                                return tmpOutput.GetId() == i.reference.GetId();
                            });
+    // If it does still exist:
     if (it != tmpItems.end())
     {
+        // Use its index.
         tmpSelectedOut = int(std::distance(tmpItems.begin(), it));    // Get the index of tmpOutput in tmpItems.
     }
     else
     {
         tmpSelectedOut = 0;
     }
+
+    // Copy the current name of the BOM into the user input box.
     strcpy_s(tmpName, sizeof(tmpName), tmpBom.GetName().c_str());
     tmpQuantityMade = int(tmpBom.GetRawOutput().GetQuantity());
+
+    // The user hasn't entered any text in the filter box.
     itemFilter.ClearText();
 }
 
