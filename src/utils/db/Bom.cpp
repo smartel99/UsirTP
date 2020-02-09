@@ -218,10 +218,10 @@ const std::vector<BOM>& DB::BOM::GetAll()
  *                  - BOM0002
  *                  - BOM0006
  *              DB::BOM::GetNewId will return `BOM0007`
- * @param   None
+ * @param   id [Optional] : Forces the ID to use a specific number.
  * @retval  A string representation of the new ID.
  */
-std::string DB::BOM::GetNewId()
+std::string DB::BOM::GetNewId(int id)
 {
     int max = 0;
     // For each BOM in the cache:
@@ -235,8 +235,10 @@ std::string DB::BOM::GetNewId()
         }
     }
 
+    // If an id was specified, use it, otherwise use the next available ID.
+    max = id == -1 ? max + 1 : id;
     // Form the new ID by incrementing the biggest seen ID by 1.
-    std::string ret = "BOM" + StringUtils::NumToString(max + 1);
+    std::string ret = "BOM" + StringUtils::NumToString(max);
     return ret;
 }
 

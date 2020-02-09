@@ -80,10 +80,12 @@ static void RenderAddWindow();
 static void RenderEditWindow();
 static void RenderItemPopup(std::string& p, DB::BOM::BOM& bom);
 static void SortItems(SortBy sort, std::vector<DB::BOM::BOM>& boms);
+
 static void MakeNewPopup();
 static void MakeEditPopup(bool isRetry = false);
 static void MakeDeletePopup();
 static void MakeMakePopup();
+
 static void SaveNewBom();
 static void SaveEditedBom();
 static void DeleteBom();
@@ -512,8 +514,8 @@ void RenderEditWindow()
         // If the `Accept` button has been clicked on by the user:
         if (ImGui::Button("Accept"))
         {
-            // Save the newly created BOM.
-            SaveNewBom();
+            // Save the edited BOM.
+            SaveEditedBom();
         }
         ImGui::SameLine();
         // If the `Cancel` button has been clicked on by the user:
@@ -745,22 +747,41 @@ static void MakeEditPopup(bool isRetry)
     itemFilter.ClearText();
 }
 
+/**
+ * @brief   Handle the creation of a confirmation box for the deletion of a BOM.
+ * @param   None
+ * @retval  None
+ */
 static void MakeDeletePopup()
 {
+    // Create a new pop up on the Popup stack.
     Popup::Init("Delete BOM", false);
+    // Add stylized text to the pop up.
     Popup::AddCall(Popup::TextStylized, "Are you sure you want to delete this BOM?"
                    "\nThis action cannot be undone", "Bold", true);
+    // Add a button to the pop up and bind it to the `DeleteBom` function.
     Popup::AddCall(Popup::Button, "Yes", DeleteBom, true);
     Popup::AddCall(Popup::SameLine);
+    // Add a button to the pop up and bind it to the `CancelAction` function.
     Popup::AddCall(Popup::Button, "No", CancelAction, true);
 }
 
+/**
+ * @brief   Cancel any ongoing action. This clears all temporary variables.
+ * @param   None
+ * @retval  None
+ */
 static void CancelAction()
 {
+    // Reset the temporary BOM object to the default, non-valid BOM.
     tmpBom = DB::BOM::BOM();
+    // Clear the name input buffer.
     memset(tmpName, 0, sizeof(tmpName));
+    // Clear the list of all the existing Items.
     tmpItems.clear();
+    // Reset the temporary BOM's output object to the default ItemReference.
     tmpOutput = DB::BOM::ItemReference();
+    // Reset the other values to their default states.
     tmpQuantityMade = 0;
     tmpQuantityToMake = 0;
 
@@ -768,49 +789,95 @@ static void CancelAction()
     isAddOpen = false;
 }
 
+/**
+ * @brief   Handle the creation of the pop up for using a BOM.
+ *          This binds all the necessary functions to the pop up.
+ * @param   None
+ * @retval  None
+ */
 void MakeMakePopup()
 {
+    // Don't let the user try to make less than 1 Item from the BOM.
     tmpQuantityToMake = 1;
+    // Create a new pop up on the Popup stack.
     Popup::Init("Make BOM", false);
+    // Add the `HandlePopupMake` function to the pop up.
     Popup::AddCall(HandlePopupMake);
+    // Add a button with the label "Make" bond to the `CommitMake` function 
+    // and that closes the popup when the button is clicked on by the user.
     Popup::AddCall(HandlePopupMakeButton, "Make", CommitMake, true);
     Popup::AddCall(Popup::SameLine);
+    // Add a button with the label "Cancel" bond to the `CancelAction` function
+    // and that closes the popup when the button is clicked on by the user.
     Popup::AddCall(HandlePopupMakeButton, "Cancel", CancelAction, true);
     Popup::AddCall(Popup::SameLine);
+    // Add a button with the label "Export" bond to the `ExportItems` function
+    // and that closes the popup when the button is clicked on by the user.
     Popup::AddCall(HandlePopupMakeButton, "Export", ExportItems, true);
 }
 
+/**
+ * @brief   Uses the information that the user inputted to create a new BOM and adds it to the database.
+ * @param   None
+ * @retval  None
+ */
 void SaveNewBom()
 {
+    // Create an ID for the new BOM.
     std::string id = DB::BOM::GetNewId();
+    // Create a string from the name input buffer.
     std::string name = tmpName;
     std::vector<DB::BOM::ItemReference> items;
+    // For each Item in the temporary Item list:
     for (auto& item : tmpItems)
     {
+        // If the Item's check box is checked:
         if (item.isSelected == true)
         {
+            // Update the Item's quantity to be the one specified by the user, 
+            // aka the quantity of that Item needed to make the BOM.
             item.reference.SetQuantity(item.quantity);
+            // Add this Item to the BOM's Item list.
             items.emplace_back(item.reference);
         }
     }
 
+    // Update the Output Item's quantity to be the one specified by the user,
+    // aka the quantity of Items made by that BOM.
     tmpItems.at(tmpSelectedOut).reference.SetQuantity(float(tmpQuantityMade));
+    // Fetch the actual Item selected by the user.
     tmpOutput = tmpItems.at(tmpSelectedOut).reference;
 
+    // Add the newly created BOM object to the database.
     DB::BOM::AddBom(DB::BOM::BOM(id, name, items, tmpOutput));
+
+    // Clear all input buffers.
     CancelAction();
 }
 
+/**
+ * @brief   Modifies a BOM object that already exists in the database
+ *          using the information inputted by the user.
+ * @param   None
+ * @retval  None
+ */
 void SaveEditedBom()
 {
-    std::string id = DB::BOM::GetNewId();
+    // Get the string ID of the BOM.
+    const std::string& id = tmpBom.GetId();
+    // Create a string from the name input buffer.
     std::string name = tmpName;
     std::vector<DB::BOM::ItemReference> items;
+    // For each Item in the temporary Item list:
     for (auto& item : tmpItems)
     {
+        // If the Item's check box has been checked by the user:
         if (item.isSelected == true)
         {
+            // Update the Item's quantity to be the one specified by the user, 
+            // aka the quantity of that Item needed to make the BOM.
             item.reference.SetQuantity(item.quantity);
+            // Add this Item to the BOM's Item list.
             items.emplace_back(item.reference);
         }
     }
@@ -823,6 +890,11 @@ void SaveEditedBom()
     CancelAction();
 }
 
+/**
+ * @brief   Delete the temporary BOM selected by the user
+ * @param   None
+ * @retval  None
+ */
 void DeleteBom()
 {
     DB::BOM::DeleteBom(tmpBom);
@@ -1109,14 +1181,14 @@ void ExportItems()
     for (auto& item : items)
     {
         outputFile << item.GetId() << ","
-            << "\"" << item.GetName() << "\","
-            << item.GetRawOutput().GetId() << ",\"";
+            << R"(")" << item.GetName() << R"(",)"
+            << item.GetRawOutput().GetId() << R"(,")";
         for (auto& i : item.GetRawItems())
         {
             outputFile << i.GetId() << ":\t" << i.GetQuantity() * tmpQuantityToMake << " " << DB::Item::GetItemByID(i.GetId()).GetUnit() << std::endl;
         }
 
-        outputFile << "\"" << std::endl;
+        outputFile << R"(")" << std::endl;
     }
 
     outputFile.close();

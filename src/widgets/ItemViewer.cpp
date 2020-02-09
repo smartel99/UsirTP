@@ -682,7 +682,7 @@ static void MakeEditPopup(bool isRetry)
 
     if (isRetry == true)
     {
-        std::string style = "Bold/4278190335"; // 0xFF0000FF -> Red.
+        std::string style = "Bold/4278190335"; // 4278190335 -> 0xFF0000FF -> Red.
         Popup::AddCall(Popup::TextStylized, "Some fields are invalid, please retry", style, true);
     }
     Popup::AddCall(HandlePopupIdInputDisabled);

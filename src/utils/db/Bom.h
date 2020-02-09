@@ -268,7 +268,7 @@ bool EditBom(const BOM& oldBom, const BOM& newBom);
 bool DeleteBom(const BOM& bom);
 
 const std::vector<BOM>& GetAll();
-std::string GetNewId();
+std::string GetNewId(int id = -1);
 }
 }
 /* Have a wonderful day :) */
