@@ -2335,4 +2335,7 @@
     <CopyFileToFolders Include="Dependencies\mongoC\bin\msvcp140.dll" />
     <CopyFileToFolders Include="Dependencies\mongoC\bin\vcruntime140.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="x64\Release\Config.json" />
+  </ItemGroup>
 </Project>

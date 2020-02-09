@@ -18,6 +18,10 @@
 #include <iostream>
 #include "utils/misc.h"
 
+/**
+ * @namespace    StringUtils
+ * @brief        The namespace containing all the utility fonctions for strings.
+ */
 namespace StringUtils
 {
 /*****************************************************************************/
@@ -34,6 +38,7 @@ namespace StringUtils
 
 /*****************************************************************************/
 /* Exported functions */
+
 std::string  ReplaceAll(const std::string& str,
                         const std::string& toReplace,
                         const std::string& replaceBy);
@@ -54,6 +59,15 @@ std::string NumToString(unsigned int val, bool zeroPadded = true);
 std::string NumToString(int val, bool zeroPadded = true);
 std::string NumToString(float val);
 
+/**
+ * @brief   Convert a string into a value of type `T`.
+ * @param   val: The string to convert.
+ * @retval  The value extracted from the string
+ *
+ * @note    Currently, only `int`, `unsigned int`, `long`,
+ *          `unsigned long` and `float` are valid types for `T`.
+ *          Any other types will result in the code not compiling.
+ */
 template<class T>
 T StringToNum(const std::string& val);
 

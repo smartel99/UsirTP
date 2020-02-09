@@ -28,11 +28,12 @@ const COMDLG_FILTERSPEC c_rgSaveTypes[] =
     {L"All Documents (*.*)", L"*.*"}
 };
 
+// Indices of file types.
 /**
  * @enum FileTypeEnum_t
  * @brief   Indexes of each file type in c_rgSaveType.
  */
-typedef enum
+enum class FileType
 {
     INDEX_SCRIPT = 1,   /**< Index of *.S files */
     INDEX_EXE,          /**< Index of *.exe files */
@@ -40,7 +41,7 @@ typedef enum
     INDEX_LOG,          /**< Index of *.log files */
     INDEX_CSV,          /**< Index of *.csv files */
     INDEX_DEFAULT       /**< Index of *.* files */
-}FileTypeEnum_t;
+};
 
 // Controls.
 #define CONTROL_GROUP           2000
@@ -114,16 +115,15 @@ public:
     {
         return S_OK;
     };
-
-    // Suppress warning "The enum type '...' is unscoped. Prefer 'enum class' over 'enum'
-#pragma warning( suppress : 26812 )
+// Disable C26818 for `FDS_SHAREVIOLATION_RESPONSE` enum.
+#pragma warning(suppress: 26812)
     IFACEMETHODIMP OnShareViolation(IFileDialog*, IShellItem*, FDE_SHAREVIOLATION_RESPONSE*)
     {
         return S_OK;
     };
     IFACEMETHODIMP OnTypeChange(IFileDialog* pfd);
-    // Suppress warning "The enum type '...' is unscoped. Prefer 'enum class' over 'enum'
-#pragma warning( suppress : 26812 )
+// Disable C26818 for `FDE_OVERWRITE_RESPONSE` enum.
+#pragma warning(suppress: 26812)
     IFACEMETHODIMP OnOverwrite(IFileDialog*, IShellItem*, FDE_OVERWRITE_RESPONSE*)
     {
         return S_OK;

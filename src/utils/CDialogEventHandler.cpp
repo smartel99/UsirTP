@@ -8,22 +8,22 @@ HRESULT CDialogEventHandler::OnTypeChange(IFileDialog* pfd)
 {
     IFileSaveDialog* pfsd;
     HRESULT hr = pfd->QueryInterface(&pfsd);
-    if ( SUCCEEDED(hr) )
+    if (SUCCEEDED(hr))
     {
         UINT uIndex;
         hr = pfsd->GetFileTypeIndex(&uIndex);   // Index of current file type.
-        if ( SUCCEEDED(hr) )
+        if (SUCCEEDED(hr))
         {
             IPropertyDescriptionList* pdl = nullptr;
 
-            switch ( uIndex )
+            switch (uIndex)
             {
-                case INDEX_SCRIPT:
+                case UINT(FileType::INDEX_SCRIPT):
                     // When .s is selected, let's ask for some arbitrary property,
                     // like Title.
                     hr = PSGetPropertyDescriptionListFromString(
                         L"prop:System.Title", IID_PPV_ARGS(&pdl));
-                    if ( SUCCEEDED(hr) )
+                    if (SUCCEEDED(hr))
                     {
                         // FALSE as second param == do not show default properties.
                         hr = pfsd->SetCollectedProperties(pdl, FALSE);
@@ -46,11 +46,11 @@ HRESULT CDialogEventHandler::OnItemSelected(IFileDialogCustomize* pfdc,
 {
     IFileDialog* pfd = nullptr;
     HRESULT hr = pfdc->QueryInterface(&pfd);
-    if ( SUCCEEDED(hr) )
+    if (SUCCEEDED(hr))
     {
-        if ( dwIDCtl == CONTROL_RADIOBUTTONLIST )
+        if (dwIDCtl == CONTROL_RADIOBUTTONLIST)
         {
-            switch ( dwIDItem )
+            switch (dwIDItem)
             {
                 case CONTROL_RADIOBUTTION1:
                     hr = pfd->SetTitle(L"Longhorn Dialog");
@@ -71,7 +71,7 @@ HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void** ppv)
     *ppv = nullptr;
     CDialogEventHandler* pDialogEventHandler = new (std::nothrow) CDialogEventHandler();
     HRESULT hr = pDialogEventHandler ? S_OK : E_OUTOFMEMORY;
-    if ( SUCCEEDED(hr) )
+    if (SUCCEEDED(hr))
     {
         hr = pDialogEventHandler->QueryInterface(riid, ppv);
         pDialogEventHandler->Release();

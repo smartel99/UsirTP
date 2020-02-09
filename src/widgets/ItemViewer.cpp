@@ -76,13 +76,13 @@ static std::vector<DB::Category::Category> categories;
 static bool tmpAutoId = true;
 static int tmpId = 0;
 static char tmpIdStr[5] = { 0 };
-static char tmpDesc[MAX_INPUT_LENGHT] = { 0 };
+static char tmpDesc[MAX_INPUT_LENGTH] = { 0 };
 static int tmpCat = 0;
-static char tmpRefLink[MAX_INPUT_LENGHT] = { 0 };
-static char tmpLoc[MAX_INPUT_LENGHT] = { 0 };
+static char tmpRefLink[MAX_INPUT_LENGTH] = { 0 };
+static char tmpLoc[MAX_INPUT_LENGTH] = { 0 };
 static float tmpPrice = 0.00f;
 static float tmpQty = 0.0f;
-static char tmpUnit[MAX_INPUT_LENGHT] = { 0 };
+static char tmpUnit[MAX_INPUT_LENGTH] = { 0 };
 static int tmpStatus = 0;
 static std::wstring tmpOutputFilePath = L"";
 
@@ -975,7 +975,7 @@ void ExportItems()
 
     // Make the user select the desired output file.
     tmpOutputFilePath = L"";
-    File::SaveFile(tmpOutputFilePath, INDEX_CSV, L"*.csv");
+    File::SaveFile(tmpOutputFilePath, FileType::INDEX_CSV, L"*.csv");
 
     std::ofstream outputFile;
     outputFile.open(tmpOutputFilePath);

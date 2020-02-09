@@ -16,7 +16,10 @@
 /*****************************************************************************/
 /* Includes */
 
-
+/**
+ * @namespace    BomViewer
+ * @brief        The namespace that handles user interactions with bills of materials.
+ */
 namespace BomViewer
 {
 /*****************************************************************************/
