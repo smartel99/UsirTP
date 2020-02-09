@@ -545,6 +545,7 @@ void CommitMake()
     CancelAction();
 }
 
+
 void HandlePopupItemPickerInput()
 {
     static bool shouldOnlyShowSelected = false;

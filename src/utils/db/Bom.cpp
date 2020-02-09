@@ -139,7 +139,7 @@ bool DB::BOM::AddBom(const BOM& bom /**< [in] The BOM to insert into the databas
     bsoncxx::document::value doc = CreateDocument(bom);
 
     // Log the event.
-    Logging::Audit.Info("Created BOM \"" + bom.GetId(), "\"", true);
+    Logging::Audit.Info(R"(Created BOM ")" + bom.GetId(), R"(")", true);
 
     // Insert the BOM in the database.
     return DB::InsertDocument(doc, DATABASE, "BOMs");
