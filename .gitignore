@@ -335,3 +335,4 @@ ASALocalRun/
 healthchecksdb
 x64/Release/Config.json
 x64/Release/Config.json
+/x64/Release-DebugDB/Config.json

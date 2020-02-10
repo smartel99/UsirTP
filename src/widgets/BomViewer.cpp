@@ -106,6 +106,7 @@ static DB::BOM::BOM tmpBom;
 
 //! The list of Items of the BOM currently being worked with.
 static std::vector<ItemRef> tmpItems;
+static std::vector<ItemRef> tmpItemsForOutput;
 
 //! The output Item of the BOM currently being worked with.
 static DB::BOM::ItemReference tmpOutput;
@@ -245,7 +246,8 @@ void BomViewer::Render()
 #pragma endregion
 
     // Create a child frame that spans all the remaining available space in the parent frame.
-    ImGui::BeginChildFrame(ImGui::GetID("BomViewerChildFrame"), ImVec2());
+    ImGui::BeginChildFrame(ImGui::GetID("BomViewerChildFrame"),
+                           ImVec2(0, (ImGui::GetWindowHeight() - ImGui::GetCursorPosY() - 25)));
     // Pop the gray color we've pushed on the ImGui stack earlier.
     ImGui::PopStyleColor();
 
@@ -541,7 +543,7 @@ void RenderItemPopup(std::string& p, DB::BOM::BOM& bom)
     // If the pop up should be drawn:
     if (ImGui::BeginPopup(p.c_str(), ImGuiWindowFlags_AlwaysAutoResize))
     {
-        // Forces the popup to be 400 pixels wide with a dummy object.
+        // Forces the pop up to be 400 pixels wide with a dummy object.
         ImGui::Dummy(ImVec2(400.f, 0.1f));
         // Get a list of all the items in the BOM.
         std::vector<DB::BOM::ItemReference> its = bom.GetRawItems();
@@ -567,13 +569,38 @@ void RenderItemPopup(std::string& p, DB::BOM::BOM& bom)
         {
             // Draw an horizontal line.
             ImGui::Separator();
+
+            ImVec2 currentPos = ImGui::GetCursorScreenPos();
+            ImVec2 bottomRight = ImVec2(currentPos.x + 400.f, currentPos.y + ImGui::GetFrameHeight());
+            bool isMouseHoveringItem = ImGui::IsMouseHoveringRect(currentPos, bottomRight, false);
+            ImVec2 descSize = ImVec2(0, ImGui::GetFrameHeight());
+            if (isMouseHoveringItem == true)
+            {
+                // Calculate the number of lines the full description of the Item takes.
+                descSize.y = ((it.GetItem().GetDescription().size() / 15) + 1) * ImGui::GetFrameHeight();
+            }
             // Display the Item's ID.
             ImGui::Text(it.GetId().c_str());
             // Move on to the next column.
             ImGui::NextColumn();
+
             // Display the Item's description.
-            std::string d = it.GetItem().GetDescription().substr(0, 15) + "...";
-            ImGui::Text(d.c_str());
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4());
+            ImGui::BeginChildFrame(ImGui::GetID(std::string("##BomItemDescChildFrame" + it.GetId()).c_str()),
+                                   descSize);
+            std::string d = isMouseHoveringItem == true ? it.GetItem().GetDescription() :
+                it.GetItem().GetDescription().substr(0, 15) + "...";
+
+            if (isMouseHoveringItem == true)
+            {
+                ImGui::TextWrapped(d.c_str());
+            }
+            else
+            {
+                ImGui::Text(d.c_str());
+            }
+            ImGui::EndChildFrame();
+            ImGui::PopStyleColor();
             // Move on to the next column.
             ImGui::NextColumn();
             // Display the quantity needed.
@@ -672,6 +699,9 @@ static void MakeNewPopup()
         tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
                                                              i.GetQuantity(), int(tmpItems.size())),
                                       false));
+        tmpItemsForOutput.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
+                                                                      i.GetQuantity(), int(tmpItems.size())),
+                                               false));
     }
     // The user hasn't selected any output Item.
     tmpSelectedOut = 0;
@@ -699,8 +729,12 @@ static void MakeEditPopup(bool isRetry)
     {
         // Create an ItemRef object from that Item and add it to the temporary list.
         tmpItems.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
-                                                             i.GetQuantity(), int(tmpItems.size())),
+                                                             i.GetQuantity(), int(tmpItems.size() + items.size())),
                                       false));
+        tmpItemsForOutput.emplace_back(ItemRef(DB::BOM::ItemReference(i.GetId(), i.GetOid(),
+                                                                      i.GetQuantity(),
+                                                                      int(tmpItems.size() + items.size())),
+                                               false));
         // Check if that Item is one that is already part of the BOM's Item list.
         auto it = std::find_if(tmpBom.GetRawItems().begin(),
                                tmpBom.GetRawItems().end(),
@@ -779,6 +813,7 @@ static void CancelAction()
     memset(tmpName, 0, sizeof(tmpName));
     // Clear the list of all the existing Items.
     tmpItems.clear();
+    tmpItemsForOutput.clear();
     // Reset the temporary BOM's output object to the default ItemReference.
     tmpOutput = DB::BOM::ItemReference();
     // Reset the other values to their default states.
@@ -804,15 +839,15 @@ void MakeMakePopup()
     // Add the `HandlePopupMake` function to the pop up.
     Popup::AddCall(HandlePopupMake);
     // Add a button with the label "Make" bond to the `CommitMake` function 
-    // and that closes the popup when the button is clicked on by the user.
+    // and that closes the pop up when the button is clicked on by the user.
     Popup::AddCall(HandlePopupMakeButton, "Make", CommitMake, true);
     Popup::AddCall(Popup::SameLine);
     // Add a button with the label "Cancel" bond to the `CancelAction` function
-    // and that closes the popup when the button is clicked on by the user.
+    // and that closes the pop up when the button is clicked on by the user.
     Popup::AddCall(HandlePopupMakeButton, "Cancel", CancelAction, true);
     Popup::AddCall(Popup::SameLine);
     // Add a button with the label "Export" bond to the `ExportItems` function
-    // and that closes the popup when the button is clicked on by the user.
+    // and that closes the pop up when the button is clicked on by the user.
     Popup::AddCall(HandlePopupMakeButton, "Export", ExportItems, true);
 }
 
@@ -844,9 +879,9 @@ void SaveNewBom()
 
     // Update the Output Item's quantity to be the one specified by the user,
     // aka the quantity of Items made by that BOM.
-    tmpItems.at(tmpSelectedOut).reference.SetQuantity(float(tmpQuantityMade));
+    tmpItemsForOutput.at(tmpSelectedOut).reference.SetQuantity(float(tmpQuantityMade));
     // Fetch the actual Item selected by the user.
-    tmpOutput = tmpItems.at(tmpSelectedOut).reference;
+    tmpOutput = tmpItemsForOutput.at(tmpSelectedOut).reference;
 
     // Add the newly created BOM object to the database.
     DB::BOM::AddBom(DB::BOM::BOM(id, name, items, tmpOutput));
@@ -882,7 +917,7 @@ void SaveEditedBom()
         }
     }
 
-    ItemRef newOut = tmpItems.at(tmpSelectedOut);
+    ItemRef newOut = tmpItemsForOutput.at(tmpSelectedOut);
     newOut.reference.SetQuantity(float(tmpQuantityMade));
     tmpOutput = newOut.reference;
 
@@ -930,6 +965,8 @@ void HandlePopupItemPickerInput()
 {
     static bool shouldOnlyShowSelected = false;
     static std::string itemClicked = "";
+    static double itemClickedTime = 0;
+    static bool isMoving = false;
     ImGui::Text("Items to use:");
     itemFilter.Render();
     ImGui::Checkbox("Only show selected items", &shouldOnlyShowSelected);
@@ -950,29 +987,46 @@ void HandlePopupItemPickerInput()
     ImGui::NextColumn();
     ImGui::Text("Quantity");
     ImGui::NextColumn();
-    for (auto& item : tmpItems)
+    for (auto item = tmpItems.begin(); item != tmpItems.end(); item++)
     {
         // Only display the item if it matches the filter or 
         // if the "Only show selected items" checkbox is active (shouldOnlyShowSelected == true),
         // only display the item if it is included in the BOM.
-        if ((itemFilter.CheckMatch(DB::Item::GetItemByID(item.reference.GetId())) == false &&
-             itemFilter.CheckMatch(item.reference.GetItem(), 1) == false) ||
-             (shouldOnlyShowSelected == true && item.isSelected == false))
+        if ((itemFilter.CheckMatch(DB::Item::GetItemByID(item->reference.GetId())) == false &&
+             itemFilter.CheckMatch(item->reference.GetItem(), 1) == false) ||
+             (shouldOnlyShowSelected == true && item->isSelected == false))
         {
             continue;
         }
         ImGui::Separator();
         ImVec2 checkboxPos1 = ImGui::GetCursorScreenPos();
-        ImVec2 checkboxPos2 = ImVec2(checkboxPos1.x + ImGui::GetFrameHeight(), checkboxPos1.y + ImGui::GetFrameHeight());
+        ImVec2 checkboxPos2 = ImVec2(checkboxPos1.x + ImGui::GetFrameHeight(),
+                                     checkboxPos1.y + ImGui::GetFrameHeight());
 
-        ImGui::Checkbox(item.reference.GetId().c_str(), &item.isSelected);
+        if (ImGui::Checkbox(item->reference.GetId().c_str(), &item->isSelected) == true)
+        {
+            if (item->isSelected == true)
+            {
+                if (item->reference.GetPosition() >= tmpItems.size())
+                {
+                    item->reference.SetPosition(item->reference.GetPosition() - tmpItems.size());
+                }
+            }
+            else
+            {
+                if (item->reference.GetPosition() < tmpItems.size())
+                {
+                    item->reference.SetPosition(item->reference.GetPosition() + tmpItems.size());
+                }
+            }
+        }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) &&
             ImGui::IsMouseHoveringRect(checkboxPos1, checkboxPos2) == false)
         {
-            ImGui::OpenPopup(std::string("##ItemDescriptionPopup" + item.reference.GetId()).c_str());
+            ImGui::OpenPopup(std::string("##ItemDescriptionPopup" + item->reference.GetId()).c_str());
         }
 
-        if (ImGui::BeginPopup(std::string("##ItemDescriptionPopup" + item.reference.GetId()).c_str()))
+        if (ImGui::BeginPopup(std::string("##ItemDescriptionPopup" + item->reference.GetId()).c_str()))
         {
             ImVec2 popupPos = ImGui::GetMousePosOnOpeningCurrentPopup();
             ImVec2 cursorPos = ImGui::GetMousePos();
@@ -982,12 +1036,12 @@ void HandlePopupItemPickerInput()
             {
                 ImGui::CloseCurrentPopup();
             }
-            ImGui::Text(item.reference.GetItem().GetDescription().c_str());
+            ImGui::Text(item->reference.GetItem().GetDescription().c_str());
 
             ImGui::EndPopup();
         }
 
-        // Check if current row is clicked.
+        // Check if current row is clicked and has been clicked for more than 300ms.
         // Set highlighting box to start at top-left point of item frame.
         checkboxPos1.x -= ImGui::GetStyle().ItemSpacing.x;
         checkboxPos1.y -= ImGui::GetStyle().FramePadding.y;
@@ -999,47 +1053,89 @@ void HandlePopupItemPickerInput()
         if ((ImGui::IsMouseHoveringRect(checkboxPos1, endOfFrame, false) && itemClicked.empty()) &&
             ImGui::IsMouseDown(ImGuiMouseButton_Left))
         {
-            itemClicked = item.reference.GetId();
+            itemClicked = item->reference.GetId();
+            itemClickedTime = ImGui::GetTime();
         }
 
         // If this item is the one we clicked on:
-        if (item.reference.GetId() == itemClicked)
+        if (item->reference.GetId() == itemClicked)
         {
             // If the left mouse button has been released:
             if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
             {
                 // Drop the item.
                 itemClicked = "";
+                itemClickedTime = 0;
+                isMoving = false;
             }
             else
             {
-                // Check if mouse is above the item.
-                if (ImGui::GetMousePos().y < checkboxPos1.y)
+                if ((ImGui::GetTime() >= itemClickedTime + 0.150) && isMoving == false)
                 {
-                    item.reference.SetPosition(item.reference.GetPosition() - 1);
+                    isMoving = true;
                 }
-                else if (ImGui::GetMousePos().y > endOfFrame.y)
+                if (isMoving == true)
                 {
-                    item.reference.SetPosition(item.reference.GetPosition() + 1);
+                    // Check if mouse is above the item.
+                    if (ImGui::GetMousePos().y < checkboxPos1.y)
+                    {
+                        if (item != tmpItems.begin())
+                        {
+                            // Don't let the user drag an unselected item above a selected item.
+                            if ((item->isSelected == false &&
+                                (item - 1)->reference.GetPosition() >= tmpItems.size()) ||
+                                 (item->isSelected == true))
+                            {
+                                int position = item->reference.GetPosition();
+                                item->reference.SetPosition((item - 1)->reference.GetPosition());
+                                (item - 1)->reference.SetPosition(position);
+//                                 Logging::System.Info("");
+//                                 Logging::System.Info("Item " + item->reference.GetId() + "position is now ",
+//                                                      item->reference.GetPosition(), false);
+//                                 Logging::System.Info("Item " + (item - 1)->reference.GetId() + "position is now ",
+//                                     (item - 1)->reference.GetPosition(), false);
+                            }
+                        }
+                    }
+                    else if (ImGui::GetMousePos().y > endOfFrame.y)
+                    {
+                        if ((item + 1) != tmpItems.end())
+                        {
+                        // Don't let the user drag a selected item bellow the last selected item.
+                            if ((item->isSelected == true &&
+                                (item + 1)->reference.GetPosition() < tmpItems.size()) ||
+                                 (item->isSelected == false))
+                            {
+                                int position = item->reference.GetPosition();
+                                item->reference.SetPosition((item + 1)->reference.GetPosition());
+                                (item + 1)->reference.SetPosition(position);
+//                                 Logging::System.Info("");
+//                                 Logging::System.Info("Item " + item->reference.GetId() + "position is now ",
+//                                                      item->reference.GetPosition(), false);
+//                                 Logging::System.Info("Item " + (item + 1)->reference.GetId() + "position is now ",
+//                                     (item + 1)->reference.GetPosition(), false);
+                            }
+                        }
+                    }
+                    ImGui::GetForegroundDrawList()->AddRectFilled(checkboxPos1, endOfFrame,
+                                                                  ImGui::GetColorU32(ImGuiCol_ButtonActive, 0.3f));
                 }
-                ImGui::GetForegroundDrawList()->AddRectFilled(checkboxPos1, endOfFrame,
-                                                              ImGui::GetColorU32(ImGuiCol_ButtonActive, 0.3f));
             }
         }
 
         ImGui::NextColumn();
-        float available = DB::Item::GetItemByID(item.reference.GetId()).GetQuantity();
-        ImGui::Text("%0.2f %s", available, DB::Item::GetItemByID(item.reference.GetId()).GetUnit());
+        float available = DB::Item::GetItemByID(item->reference.GetId()).GetQuantity();
+        ImGui::Text("%0.2f %s", available, DB::Item::GetItemByID(item->reference.GetId()).GetUnit());
         ImGui::NextColumn();
-        ImGui::BeginChildFrame(ImGui::GetID(std::string("##QtyChildFrame" + item.reference.GetId()).c_str()),
+        ImGui::BeginChildFrame(ImGui::GetID(std::string("##QtyChildFrame" + item->reference.GetId()).c_str()),
                                ImVec2(0, ImGui::GetFrameHeightWithSpacing() + 5));
         ImU32 col = ImGui::GetColorU32(ImGuiCol_Text);
-        if (available < item.quantity)
+        if (available < item->quantity)
         {
             col = 0xFF0000FF;   // Red.
         }
         ImGui::PushStyleColor(ImGuiCol_Text, col);
-        ImGui::InputFloat(std::string("##QtyInputFloat" + item.reference.GetId()).c_str(), &item.quantity, 1.0f, 10.0f);
+        ImGui::InputFloat(std::string("##QtyInputFloat" + item->reference.GetId()).c_str(), &item->quantity, 1.0f, 10.0f);
         ImGui::PopStyleColor();
         ImGui::EndChildFrame();
         ImGui::NextColumn();
@@ -1050,13 +1146,41 @@ void HandlePopupItemPickerInput()
 
 void HandlePopupOutputPickerInput()
 {
-    std::vector<const char*> ids;
-    for (auto& item : tmpItems)
-    {
-        ids.emplace_back(item.reference.GetId().c_str());
-    }
+    static FilterUtils::FilterHandler itFilter;
+//     std::vector<const char*> ids;
+//     for (auto& item : tmpItemsForOutput)
+//     {
+//         ids.emplace_back(item.reference.GetId().c_str());
+//     }
 
-    ImGui::Combo("Created Item", &tmpSelectedOut, ids.data(), int(ids.size()));
+    if (ImGui::BeginCombo("Created Item", tmpItemsForOutput.at(tmpSelectedOut).reference.GetId().c_str()))
+    {
+        itFilter.Render();
+        int currItem = -1;
+        for (auto& item : tmpItemsForOutput)
+        {
+            currItem++;
+            if (itFilter.CheckMatch(item.reference.GetItem(), 0) == false &&
+                itFilter.CheckMatch(item.reference.GetItem(), 1) == false)
+            {
+                continue;
+            }
+            ImGui::Separator();
+            if (ImGui::Selectable(item.reference.GetId().c_str()))
+            {
+                tmpSelectedOut = currItem;
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::TextWrapped(std::string("\t" + item.reference.GetItem().GetDescription()).c_str());
+            }
+        }
+        ImGui::EndCombo();
+    }
+    else
+    {
+        itFilter.ClearText();
+    }
     ImGui::InputInt("Quantity of items made", &tmpQuantityMade);
     if (tmpQuantityMade < 1)
     {

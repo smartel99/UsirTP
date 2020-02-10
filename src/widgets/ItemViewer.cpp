@@ -149,7 +149,8 @@ void ItemViewer::Render()
     ImGui::Columns(1);
 #pragma endregion Search bar/filters
 
-    ImGui::BeginChildFrame(ImGui::GetID("ViewerChildFrame"), ImVec2());
+    ImGui::BeginChildFrame(ImGui::GetID("ViewerChildFrame"),
+                           ImVec2(0, (ImGui::GetWindowHeight() - ImGui::GetCursorPosY() - 25)));
     ImGui::PopStyleColor();
 
     static SortBy sortby = SortBy::id;
