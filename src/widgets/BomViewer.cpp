@@ -1083,17 +1083,23 @@ void HandlePopupItemPickerInput()
                         {
                             // Don't let the user drag an unselected item above a selected item.
                             if ((item->isSelected == false &&
-                                (item - 1)->reference.GetPosition() >= tmpItems.size()) ||
+                                (item - 1)->isSelected == false) ||
                                  (item->isSelected == true))
                             {
                                 int position = item->reference.GetPosition();
                                 item->reference.SetPosition((item - 1)->reference.GetPosition());
                                 (item - 1)->reference.SetPosition(position);
-//                                 Logging::System.Info("");
-//                                 Logging::System.Info("Item " + item->reference.GetId() + "position is now ",
-//                                                      item->reference.GetPosition(), false);
-//                                 Logging::System.Info("Item " + (item - 1)->reference.GetId() + "position is now ",
-//                                     (item - 1)->reference.GetPosition(), false);
+
+                                // If the two Items have the same IDs, We need to make them move somehow.
+                                if (item->reference.GetPosition() == (item - 1)->reference.GetPosition())
+                                {
+                                    item->reference.SetPosition(position - 1);
+                                }
+                                Logging::System.Info("");
+                                Logging::System.Info("Item " + item->reference.GetId() + "position is now ",
+                                                     item->reference.GetPosition(), false);
+                                Logging::System.Info("Item " + (item - 1)->reference.GetId() + "position is now ",
+                                    (item - 1)->reference.GetPosition(), false);
                             }
                         }
                     }
@@ -1103,17 +1109,30 @@ void HandlePopupItemPickerInput()
                         {
                         // Don't let the user drag a selected item bellow the last selected item.
                             if ((item->isSelected == true &&
-                                (item + 1)->reference.GetPosition() < tmpItems.size()) ||
+                                (item + 1)->isSelected == true) ||
                                  (item->isSelected == false))
                             {
                                 int position = item->reference.GetPosition();
                                 item->reference.SetPosition((item + 1)->reference.GetPosition());
                                 (item + 1)->reference.SetPosition(position);
-//                                 Logging::System.Info("");
-//                                 Logging::System.Info("Item " + item->reference.GetId() + "position is now ",
-//                                                      item->reference.GetPosition(), false);
-//                                 Logging::System.Info("Item " + (item + 1)->reference.GetId() + "position is now ",
-//                                     (item + 1)->reference.GetPosition(), false);
+
+                                // If the two Items have the same IDs, We need to make them move somehow.
+                                if (item->reference.GetPosition() == (item + 1)->reference.GetPosition())
+                                {
+                                    item->reference.SetPosition((item + 1)->reference.GetPosition() + 1);
+                                }
+
+                                // If the Item moved out of visible area:
+                                if (ImGui::IsItemVisible() == false)
+                                {
+                                    // Scroll down till it is visible.
+                                    while (ImGui::IsItemVisible() == false);
+                                }
+                                Logging::System.Info("");
+                                Logging::System.Info("Item " + item->reference.GetId() + "position is now ",
+                                                     item->reference.GetPosition(), false);
+                                Logging::System.Info("Item " + (item + 1)->reference.GetId() + "position is now ",
+                                    (item + 1)->reference.GetPosition(), false);
                             }
                         }
                     }
