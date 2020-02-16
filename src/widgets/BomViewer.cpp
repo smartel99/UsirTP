@@ -917,57 +917,108 @@ void SaveEditedBom()
         }
     }
 
+    // Update the output Item's quantity to be the one specified by the user,
+    // AKA the quantity of Items that are produced by this BOM.
     ItemRef newOut = tmpItemsForOutput.at(tmpSelectedOut);
     newOut.reference.SetQuantity(float(tmpQuantityMade));
     tmpOutput = newOut.reference;
 
+    // Update the BOM in the database.
     DB::BOM::EditBom(tmpBom, DB::BOM::BOM(tmpBom.GetId(), name, items, tmpOutput));
+
+    // Clear all temporary input variables.
     CancelAction();
 }
 
 /**
- * @brief   Delete the temporary BOM selected by the user
+ * @brief   Delete the temporary BOM selected by the user.
  * @param   None
  * @retval  None
  */
 void DeleteBom()
 {
+    // Delete the BOM from the database.
     DB::BOM::DeleteBom(tmpBom);
+
+    // Clear all the temporary variables.
     CancelAction();
 }
 
+/**
+ * @brief   Uses the BOM's recipe to make the designed Item.
+ *          It automatically subtracts all the needed Items from the inventory
+ *          as well as incrementing the Output Item's quantity by the number of Items made.
+ * @param   None
+ * @retval  None
+ *
+ * @note    The user must be logged in to complete the action,
+ *          otherwise it will fail with a pop up appearing on the screen.
+ */
 void CommitMake()
 {
+    // If the user doesn't have write privileges in the database:
     if (DB::HasUserWritePrivileges() == false)
     {
+        // Warn the user.
         Popup::Init("Unauthorized");
-        Popup::AddCall(Popup::TextStylized, "You must be logged in to do this action", "Bold/4278190335", true);
+        Popup::AddCall(Popup::TextStylized,
+                       "You must be logged in to do this action",
+                       "Bold/4278190335",   // Display the text in bold and in red. (4278190335 -> 0xFF0000FF)
+                       true);
 
+        // Clear the temporary input variables.
         CancelAction();
         return;
     }
+
+    // Get a reference to the output Item in the database.
     DB::Item::Item newIt = tmpBom.GetOutput();
+    // #Todo Check if this does what it should (Increment the number of Items by the number of Items made).
+    // Increment the Output Item's quantity.
     newIt.IncQuantity();
+    // Update the output Item in the database.
     DB::Item::EditItem(tmpBom.GetOutput(), newIt);
 
+    // For each Item in the BOM's list:
     for (auto& item : tmpBom.GetRawItems())
     {
-        newIt = DB::Item::GetItemByID(item.GetId());
+        // Get the Item object from that Item Reference.
+        newIt = item.GetItem();
+        // #Todo Check if this does what it should (Decrement the number of Items by the number of Items made).
+        // Decrement the Item's quantity by the quantity specified in the BOM.
         newIt.DecQuantity(item.GetQuantity());
-        DB::Item::EditItem(DB::Item::GetItemByID(item.GetId()), newIt);
+        // Update the Item in the database.
+        DB::Item::EditItem(item.GetItem(), newIt);
     }
 
+    // Clear the temporary output variables.
     CancelAction();
 }
 
-
+/**
+ * @brief   Handle everything related to the selection
+ *          of Items to add to a BOM being created or edited.
+ *          This includes:
+ *              - Filtering/Searching for specific Items
+ *              - Selecting/De-selecting Items
+ *              - Selection of the quantity of Items needed
+ *              - Re-arranging the order of the Items.
+ * @param   None
+ * @retval  None
+ */
 void HandlePopupItemPickerInput()
 {
+    // Flag that indicates if we should only draw Items that has their check box checked.
     static bool shouldOnlyShowSelected = false;
+    // ID of the Item that is being clicked on by the user and that has not been released yet.
     static std::string itemClicked = "";
+    // The time (in ms since the beginning of execution) that the Item has been clicked by the user.
     static double itemClickedTime = 0;
+    // Flag that indicates if `itemClicked` is movable (Has been clicked on for more than 150ms.
     static bool isMoving = false;
+
     ImGui::Text("Items to use:");
+    // Render and handle the filter bar.
     itemFilter.Render();
     ImGui::Checkbox("Only show selected items", &shouldOnlyShowSelected);
 
@@ -975,7 +1026,8 @@ void HandlePopupItemPickerInput()
     ImGui::BeginChildFrame(ImGui::GetID("ItemPickerChildFrame"), size);
     float availWidth = ImGui::GetWindowContentRegionWidth();
 
-    std::sort(tmpItems.begin(), tmpItems.end(), [](ItemRef& a, ItemRef& b)
+    std::sort(tmpItems.begin(), tmpItems.end(),
+              [](ItemRef& a, ItemRef& b)
               {
                   return a.reference.GetPosition() < b.reference.GetPosition();
               });
@@ -1166,11 +1218,6 @@ void HandlePopupItemPickerInput()
 void HandlePopupOutputPickerInput()
 {
     static FilterUtils::FilterHandler itFilter;
-//     std::vector<const char*> ids;
-//     for (auto& item : tmpItemsForOutput)
-//     {
-//         ids.emplace_back(item.reference.GetId().c_str());
-//     }
 
     if (ImGui::BeginCombo("Created Item", tmpItemsForOutput.at(tmpSelectedOut).reference.GetId().c_str()))
     {
@@ -1346,5 +1393,7 @@ void ExportItems()
 
 void OpenOutputFile()
 {
-    ShellExecute(nullptr, nullptr, StringUtils::LongStringToString(tmpOutputFilePath).c_str(), nullptr, nullptr, SW_SHOW);
+    ShellExecute(nullptr, nullptr,
+                 StringUtils::LongStringToString(tmpOutputFilePath).c_str(),
+                 nullptr, nullptr, SW_SHOW);
 }

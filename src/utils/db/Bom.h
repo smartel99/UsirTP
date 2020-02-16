@@ -90,11 +90,21 @@ public:
         return m_objectId;
     }
 
+    /**
+     * @brief   Get the position of the Item in the list.
+     * @param   None
+     * @retval  The position of the Item.
+     */
     inline const int GetPosition() const
     {
         return m_position;
     }
 
+    /**
+     * @brief   Set the position of the Item in the list.
+     * @param   position: The position to assgin to the Item.
+     * @retval  None
+     */
     inline void SetPosition(int position)
     {
         m_position = position;
