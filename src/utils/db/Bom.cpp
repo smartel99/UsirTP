@@ -248,7 +248,7 @@ std::string DB::BOM::GetNewId(int id)
  * @param   bom: The BOM to create a document with.
  * @retval  The created document.
  */
-bsoncxx::document::value CreateDocument(BOM bom /**< [in] The BOM object to create the document from */)
+bsoncxx::document::value CreateDocument(BOM bom)
 {
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
